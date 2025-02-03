@@ -1,5 +1,6 @@
 import React from "react";
 import Logo from "./Logo/Logo";
+import Profile from "./Profile/Profile";
 
 function Header() {
   return (
@@ -11,7 +12,9 @@ function Header() {
         <div className="flex  items-center justify-center mr-5 gap-2">
           <div> </div>
           <div></div>
-          <div></div>
+          <div>
+            <Profile />
+          </div>
         </div>
       </div>
     </header>

@@ -6,18 +6,23 @@ import { BsExclamationCircle } from "react-icons/bs";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { FiPackage } from "react-icons/fi";
 import { FaIdCard } from "react-icons/fa";
-import useAuthStore from "../../../store/useAuthStore";
+import useAuthStore from "../../../store/authStore";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { logOut, user } = useAuthStore();
+  const { logOut, employee } = useAuthStore();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const handleLogout = () => {
-    logOut();
-    setOpen(false);
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logOut(); // Ensure backend logout request
+      navigate("/"); // Redirect to home after logout
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setOpen(false);
+    }
   };
 
   useEffect(() => {
@@ -33,6 +38,27 @@ const Profile = () => {
     };
   }, []);
 
+  // Dynamic menu options based on the role
+  const menuOptions = {
+    admin: [
+      { label: "Manage Employees", link: "employees" },
+      { label: "Manage Clients", link: "clients" },
+      { label: "Manage Tasks", link: "tasks" },
+    ],
+    hr: [
+      { label: "Manage Employees", link: "employees" },
+      { label: "Manage Clients", link: "clients" },
+      { label: "Manage Tasks", link: "tasks" },
+      // { label: "Employee Records", link: "employees" },
+      // { label: "Attendance", link: "attendance" },
+      // { label: "Leave Requests", link: "leave" },
+    ],
+    // Additional roles could go here
+  };
+
+  const role = employee?.role; // Get the role of the logged-in employee
+  const menu = menuOptions[role] || []; // Get the appropriate menu for the role
+
   return (
     <div ref={dropdownRef} className="relative inline-block text-left">
       <div>
@@ -45,63 +71,54 @@ const Profile = () => {
 
       {open && (
         <div className="origin-top-right leading-none absolute text-[13px] right-[-12px] mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-          <div className="py-1 flex justify-between items-center  gap-6 active:scale-95 ">
-            <div className="px-5"> {user.name} </div>
+          <div className="py-1 flex justify-between items-center gap-6 active:scale-95">
+            <div className="px-5">{employee.username}</div>
             <div className="mr-2">
               <Button shape="circle" className="text-[20px]">
                 <FaIdCard />
               </Button>
             </div>
           </div>
-          <div
-            className="py-1 flex justify-between items-center  gap-1 active:scale-95 "
-            onClick={() => {
-              navigate("/mydetails", { state: { tab: "1" } });
-              setOpen(!open);
-            }}
-          >
-            <div className="px-5"> My Trucks </div>
-            <div className="mr-2">
-              <Button shape="circle" className="text-[20px]">
-                <LiaShippingFastSolid />
-              </Button>
+
+          {/* Dynamically rendered menu items based on the role */}
+          {menu.map((item) => (
+            <div
+              key={item.link}
+              className="py-1 flex justify-between items-center gap-1 active:scale-95"
+              onClick={() => {
+                navigate(`/${item.link}`);
+                setOpen(false);
+              }}
+            >
+              <div className="px-5">{item.label}</div>
+              <div className="mr-2">
+                <Button shape="circle" className="text-[20px]">
+                  <FiPackage />
+                </Button>
+              </div>
             </div>
-          </div>
-          <div
-            className="py-1 flex justify-between items-center gap-1  active:scale-95 "
-            onClick={() => {
-              navigate("/mydetails", { state: { tab: "2" } });
-              setOpen(!open);
-            }}
-          >
-            {" "}
-            <div className="px-5"> My Loads </div>{" "}
-            <div className="mr-2">
-              <Button shape="circle" className="text-[20px]">
-                <FiPackage />
-              </Button>
-            </div>
-          </div>
+          ))}
 
           <div
             className="py-1 flex justify-between items-center gap-2 active:scale-95"
             onClick={() => {
               window.location.href = "https://loadmatch.in";
-              setOpen(!open);
+              setOpen(false);
             }}
           >
-            <div className="px-5"> About Us</div>
+            <div className="px-5">About Us</div>
             <div className="mr-2">
               <Button shape="circle" className="text-[20px]">
                 <BsExclamationCircle />
               </Button>
             </div>
           </div>
+
           <div
-            className="py-1 flex justify-between gap-7 items-center active:scale-95 "
+            className="py-1 flex justify-between gap-7 items-center active:scale-95"
             onClick={handleLogout}
           >
-            <div className="px-5"> Logout</div>
+            <div className="px-5">Logout</div>
             <div className="mr-2">
               <Button shape="circle" icon={<LogoutOutlined />} />
             </div>

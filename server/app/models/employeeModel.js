@@ -1,9 +1,9 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../utils/db");
 const bcrypt = require("bcryptjs");
-const Task = require("./taskModel");
-const Notification = require("./notificationModel");
-const Client = require("./clientModel");
+// const Task = require("./taskModel");
+// const Notification = require("./notificationModel");
+// const Client = require("./clientModel");
 
 const Employee = sequelize.define(
   "Employee",
@@ -91,20 +91,20 @@ const Employee = sequelize.define(
     attachments: {
       type: DataTypes.JSONB,
     },
-    assigned_clients: {
-      type: DataTypes.ARRAY(DataTypes.INTEGER),
-      references: {
-        model: Client,
-        key: "client_id",
-      },
-    },
-    assigned_tasks: {
-      type: DataTypes.ARRAY(DataTypes.INTEGER),
-      references: {
-        model: Task,
-        key: "task_id",
-      },
-    },
+    // assigned_clients: {
+    //   type: DataTypes.ARRAY(DataTypes.INTEGER),
+    //   references: {
+    //     model: Client,
+    //     key: "client_id",
+    //   },
+    // },
+    // assigned_tasks: {
+    //   type: DataTypes.ARRAY(DataTypes.INTEGER),
+    //   references: {
+    //     model: Task,
+    //     key: "task_id",
+    //   },
+    // },
   },
   {
     tableName: "Employees",

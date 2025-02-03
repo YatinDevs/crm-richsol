@@ -4,12 +4,12 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan"); // logger
-const { sequelize } = require("./models"); // Import sequelize and all models
-
 // Required Dependencies
 
+// db setup
+const sequelize = require("./utils/db");
 // Models setup
-// const User = require("./models/userModel");
+
 const Employee = require("./models/employeeModel");
 const Token = require("./models/tokenModel");
 const models = { Employee, Token };
@@ -19,16 +19,22 @@ Object.keys(models).forEach((modelName) => {
     models[modelName].associate(models);
   }
 });
+
 const app = express();
 
 // CORS policy
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174", "*"],
+  origin: [
+    "http://192.168.0.241:5173",
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "*",
+  ],
   credentials: true,
   methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
   allowedHeaders: "Content-Type,Authorization",
 };
-app.use(cors(corsOptions));
+app.use(cors(corsOptions)); // Handle all routes CORS at once
 app.use(morgan("dev"));
 app.use(express.json()); // body parser
 app.use(cookieParser());

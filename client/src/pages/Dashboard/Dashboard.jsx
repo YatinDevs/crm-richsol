@@ -1,14 +1,18 @@
 import React from "react";
-import ContentWrapper from "../../components/ContentWrapper/ContentWrapper";
+import { Outlet } from "react-router-dom";
+import RoleSidebar from "../../components/RoleSidebar/RoleSidebar";
 
 function Dashboard() {
   return (
-    <ContentWrapper>
-      <div className="h-screen flex flex-col justify-center bg-slate-100 items-center">
-        <span className="text-5xl font-bold text-gray-700">RICH SOL</span>
-        <span className="text-4xl text-gray-700">Admin Dashboard</span>
+    <div className="flex">
+      {/* Sidebar */}
+      <RoleSidebar />
+
+      {/* Main Content */}
+      <div className="flex-1 p-6 bg-gray-100">
+        <Outlet />
       </div>
-    </ContentWrapper>
+    </div>
   );
 }
 

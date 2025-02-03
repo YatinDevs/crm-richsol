@@ -1,6 +1,9 @@
 import axios from "axios";
+import Cookies from "js-cookie"; // For reading cookies
 import useAuthStore from "../store/authStore";
-const API_BASE_URL = "http://localhost:8088/";
+const API_BASE_URL = "http://192.168.0.241:8099/";
+// const API_BASE_URL = "http://localhost:8099/";
+
 // const API_BASE_URL = ":8088/";
 
 const axiosInstance = axios.create({
@@ -11,6 +14,7 @@ const axiosInstance = axios.create({
   timeout: 10000,
 });
 
+// Request Interceptor to attach the access token
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
@@ -24,15 +28,19 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+// Response Interceptor to handle token refresh
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
+    // If the access token is expired (401 error) and we haven't tried refreshing yet
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
+        const refreshToken = Cookies.get("refreshToken");
+        console.log(refreshToken);
+
         const newAccessToken = await useAuthStore
           .getState()
           .refreshTokenAction();

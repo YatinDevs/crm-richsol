@@ -82,24 +82,30 @@ exports.login = async (req, res) => {
     }
     const accessToken = generateAccessToken(employee);
     const refreshToken = generateRefreshToken(employee);
+
+    console.log(accessToken, `access`);
+    console.log(refreshToken, `refresh`);
+
     await Token.create({
       employeeId: employee.id,
       token: refreshToken,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     });
-    console.log(refreshToken);
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    console.log(accessToken);
+    console.log(refreshToken);
 
+    console.log(accessToken);
+    const { password: _, ...empwithoutPass } = employee.toJSON();
     res.status(201).json({
       message: "User created and logged in successfully",
       accessToken: accessToken,
-      employeeDetails: employee,
+      employeeDetails: empwithoutPass,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

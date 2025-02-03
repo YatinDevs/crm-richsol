@@ -11,8 +11,17 @@ import AuthPage from "./pages/AuthPages/AuthPage";
 import SignupPage from "./pages/AuthPages/SignupPage";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import useAuthStore from "./store/authStore";
+import ManageEmployee from "./pages/Admin/ManageEmployee";
+import ManageClients from "./pages/Admin/ManageClients";
+import ManageTasks from "./pages/Admin/ManageTasks";
 
 function App() {
+  const { initialize, isAuthenticated } = useAuthStore();
+  useEffect(() => {
+    initialize(); // Initialize auth state from localStorage or cookies
+  }, [initialize]);
+
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
@@ -20,9 +29,9 @@ function App() {
           <Route
             index
             element={
-              // <AuthRedirect>
-              <AuthPage />
-              // </AuthRedirect>
+              <AuthRedirect>
+                <AuthPage />
+              </AuthRedirect>
             }
           />
           <Route
@@ -42,6 +51,11 @@ function App() {
             }
           />
         </Route>
+
+        {/* Admin Routes */}
+        <Route path="/dashboard/employees" element={<ManageEmployee />} />
+        <Route path="/dashboard/clients" element={<ManageClients />} />
+        <Route path="/dashboard/tasks" element={<ManageTasks />} />
       </>
     )
   );

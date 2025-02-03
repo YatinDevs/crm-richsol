@@ -16,20 +16,35 @@ export const signUp = async (userData) => {
 
 export const logIn = async (userData) => {
   try {
-    const response = await axiosInstance.post("api/v1/auth/login", userData);
-    const { accessToken, userDetails } = response.data;
-    useAuthStore.getState().login(userDetails, accessToken);
-    return response.data;
+    console.log(userData);
+    const response = await axiosInstance.post("api/v1/auth/login", userData, {
+      withCredentials: true, // Ensure cookies are sent with the request
+    });
+    // const { accessToken, userDetails } = response.data;
+    console.log(response, `inside AuthServices`);
+    return response;
   } catch (error) {
     console.error("Error logging in:", error.response?.data || error.message);
     throw new Error(error.response?.data?.error || "Failed to log in");
   }
 };
 
-export const logOut = async (userData) => {
+export const logOut = async () => {
   try {
-    const response = await axiosInstance.post("api/v1/auth/logout", userData);
+    const response = await axiosInstance.post("api/v1/auth/logout", {
+      withCredentials: true, // Ensure cookies are sent with the request
+    });
     useAuthStore.getState().logout();
+
+    // Clear authentication state from your global store or state management
+    useAuthStore.getState().logout();
+
+    // Remove access token from localStorage
+    localStorage.removeItem("accessToken");
+
+    // Remove refresh token cookie by setting the expiration to a past date
+    document.cookie =
+      "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; SameSite=Strict";
 
     return response.data;
   } catch (error) {

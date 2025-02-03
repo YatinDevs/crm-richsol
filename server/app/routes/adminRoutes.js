@@ -9,12 +9,12 @@ const { checkRole } = require("../middlewares/roleMiddleware");
 const router = express.Router();
 
 // Checked Registeration done
-// router.post(
-//   "/register-admin",
-//   //   authenticate,
-//   //   checkRole(["admin", "hr"]),
-//   adminRegister // checked
-// );
+router.post(
+  "/register-admin",
+  //   authenticate,
+  //   checkRole(["admin", "hr"]),
+  adminRegister // checked
+);
 // admin can be registered through postman -------> checked
 // admin can login through auth login point -------> checked
 // admin can create employee -------> checked
