@@ -7,7 +7,7 @@ exports.authenticate = (req, res, next) => {
   if (!token) return res.status(401).json({ error: "Access token required" });
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, employee) => {
-    if (err) return res.status(403).json({ error: "Invalid or expired token" });
+    if (err) return res.status(402).json({ error: "Invalid or expired token" });
     req.employee = employee;
     next();
   });

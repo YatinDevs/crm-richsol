@@ -15,6 +15,10 @@ import useAuthStore from "./store/authStore";
 import ManageEmployee from "./pages/Admin/ManageEmployee";
 import ManageClients from "./pages/Admin/ManageClients";
 import ManageTasks from "./pages/Admin/ManageTasks";
+import AddEmployee from "./pages/ManageEmp/AddEmployee";
+import EmployeeList from "./pages/ManageEmp/EmployeeList";
+import ManageAttendance from "./pages/ManageEmp/ManageAttendance";
+import ManageLeaveRequest from "./pages/ManageEmp/ManageLeaveRequest";
 
 function App() {
   const { initialize, isAuthenticated } = useAuthStore();
@@ -37,9 +41,9 @@ function App() {
           <Route
             path="/signup"
             element={
-              // <AuthRedirect>
-              <SignupPage />
-              // </AuthRedirect>
+              <AuthRedirect>
+                <SignupPage />
+              </AuthRedirect>
             }
           />{" "}
           <Route
@@ -50,12 +54,21 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Admin Routes */}
+          <Route path="/dashboard/employees" element={<ManageEmployee />} />
+          <Route path="/dashboard/employees/add" element={<AddEmployee />} />
+          <Route path="/dashboard/employees/list" element={<EmployeeList />} />
+          <Route
+            path="/dashboard/employees/attend"
+            element={<ManageAttendance />}
+          />
+          <Route
+            path="/dashboard/employees/leave"
+            element={<ManageLeaveRequest />}
+          />
+          <Route path="/dashboard/clients" element={<ManageClients />} />
+          <Route path="/dashboard/tasks" element={<ManageTasks />} />
         </Route>
-
-        {/* Admin Routes */}
-        <Route path="/dashboard/employees" element={<ManageEmployee />} />
-        <Route path="/dashboard/clients" element={<ManageClients />} />
-        <Route path="/dashboard/tasks" element={<ManageTasks />} />
       </>
     )
   );

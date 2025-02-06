@@ -16,7 +16,8 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await logOut(); // Ensure backend logout request
+      const res = await logOut(); // Ensure backend logout request
+      console.log(res);
       navigate("/"); // Redirect to home after logout
     } catch (error) {
       console.error("Logout failed:", error);
@@ -40,15 +41,11 @@ const Profile = () => {
 
   // Dynamic menu options based on the role
   const menuOptions = {
-    admin: [
-      { label: "Manage Employees", link: "employees" },
-      { label: "Manage Clients", link: "clients" },
-      { label: "Manage Tasks", link: "tasks" },
-    ],
+    admin: [],
     hr: [
-      { label: "Manage Employees", link: "employees" },
-      { label: "Manage Clients", link: "clients" },
-      { label: "Manage Tasks", link: "tasks" },
+      // { label: "Manage Employees", link: "employees" },
+      // { label: "Manage Clients", link: "clients" },
+      // { label: "Manage Tasks", link: "tasks" },
       // { label: "Employee Records", link: "employees" },
       // { label: "Attendance", link: "attendance" },
       // { label: "Leave Requests", link: "leave" },
@@ -70,7 +67,7 @@ const Profile = () => {
       </div>
 
       {open && (
-        <div className="origin-top-right leading-none absolute text-[13px] right-[-12px] mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+        <div className="origin-top-right leading-none absolute text-[13px] right-[-12px] mt-2 w-40 rounded-md shadow-lg bg-white ring-1  ring-blue-900 ring-opacity-1">
           <div className="py-1 flex justify-between items-center gap-6 active:scale-95">
             <div className="px-5">{employee.username}</div>
             <div className="mr-2">
@@ -86,7 +83,7 @@ const Profile = () => {
               key={item.link}
               className="py-1 flex justify-between items-center gap-1 active:scale-95"
               onClick={() => {
-                navigate(`/${item.link}`);
+                navigate(`/dashboard/${item.link}`);
                 setOpen(false);
               }}
             >
@@ -102,7 +99,7 @@ const Profile = () => {
           <div
             className="py-1 flex justify-between items-center gap-2 active:scale-95"
             onClick={() => {
-              window.location.href = "https://loadmatch.in";
+              window.location.href = "https://www.richsol.com/";
               setOpen(false);
             }}
           >

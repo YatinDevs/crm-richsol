@@ -12,12 +12,14 @@ const axiosInstance = axios.create({
     "Content-Type": "application/json",
   },
   timeout: 10000,
+  withCredentials: true,
 });
 
 // Request Interceptor to attach the access token
 axiosInstance.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = Cookies.get("accessToken");
+    console.log(accessToken);
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
     }
@@ -37,18 +39,26 @@ axiosInstance.interceptors.response.use(
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
+      // ✅ Extract actions from Zustand store
+      const { refreshTokenAction, logOut } = useAuthStore();
       try {
-        const refreshToken = Cookies.get("refreshToken");
-        console.log(refreshToken);
+        const newAccessToken = await refreshTokenAction();
+        if (!newAccessToken) throw new Error("No new access token received");
 
-        const newAccessToken = await useAuthStore
-          .getState()
-          .refreshTokenAction();
+        // ✅ Store new token in Cookies
+        Cookies.set("accessToken", newAccessToken, {
+          httpOnly: false, // 🔸 Frontend needs access
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Lax",
+          expires: 1 / 24, // 1 hour (fraction of a day)
+        });
+
+        // ✅ Attach new token and retry original request
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         console.error("Failed to refresh token:", refreshError);
-        useAuthStore.getState().logOut();
+        logOut(); // ✅ Ensure user logs out only once
         return Promise.reject(refreshError);
       }
     }

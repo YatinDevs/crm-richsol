@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet, useLocation, useSearchParams } from "react-router-dom";
 import Header from "../components/Header/Header";
+import RoleSidebar from "../components/RoleSidebar/RoleSidebar";
 
 function Layout() {
   const location = useLocation();
@@ -15,8 +16,17 @@ function Layout() {
   return (
     <>
       {!isHomePageLogin && <Header />}
+      <div className="flex h-[100vh]  ">
+        <div>
+          {/* Sidebar */}
+          {!isHomePageLogin && <RoleSidebar />}
+        </div>
 
-      <Outlet />
+        {/* Main Content */}
+        <div className="flex-1  bg-gray-100 ">
+          <Outlet />
+        </div>
+      </div>
     </>
   );
 }

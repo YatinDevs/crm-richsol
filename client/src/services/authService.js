@@ -3,9 +3,7 @@ import useAuthStore from "../store/authStore";
 
 export const signUp = async (userData) => {
   try {
-    const response = await axiosInstance.post("api/v1/auth/signup", userData, {
-      withCredentials: true,
-    });
+    const response = await axiosInstance.post("api/v1/auth/signup", userData);
 
     return response;
   } catch (error) {
@@ -17,9 +15,7 @@ export const signUp = async (userData) => {
 export const logIn = async (userData) => {
   try {
     console.log(userData);
-    const response = await axiosInstance.post("api/v1/auth/login", userData, {
-      withCredentials: true, // Ensure cookies are sent with the request
-    });
+    const response = await axiosInstance.post("api/v1/auth/login", userData);
     // const { accessToken, userDetails } = response.data;
     console.log(response, `inside AuthServices`);
     return response;
@@ -31,20 +27,10 @@ export const logIn = async (userData) => {
 
 export const logOut = async () => {
   try {
-    const response = await axiosInstance.post("api/v1/auth/logout", {
-      withCredentials: true, // Ensure cookies are sent with the request
-    });
-    useAuthStore.getState().logout();
-
-    // Clear authentication state from your global store or state management
-    useAuthStore.getState().logout();
+    const response = await axiosInstance.post("api/v1/auth/logout");
 
     // Remove access token from localStorage
     localStorage.removeItem("accessToken");
-
-    // Remove refresh token cookie by setting the expiration to a past date
-    document.cookie =
-      "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; SameSite=Strict";
 
     return response.data;
   } catch (error) {

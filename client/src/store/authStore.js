@@ -82,9 +82,16 @@ const useAuthStore = create((set) => ({
       const response = await apiRefreshTokenAction(refreshToken);
       console.log(response);
 
-      set({ accessToken: response.data.accessToken, isAuthenticated: true });
-      localStorage.setItem("accessToken", response.data.accessToken);
-      return response.data.accessToken;
+      const newAccessToken = response.data.accessToken;
+      const newRefreshToken = response.data.refreshToken;
+      // Update store and localStorage
+      set({ accessToken: newAccessToken, isAuthenticated: true });
+      localStorage.setItem("accessToken", newAccessToken);
+      // Update refresh token in cookies
+      if (newRefreshToken) {
+        Cookies.set("refreshToken", newRefreshToken, { expires: 7 });
+      }
+      return newAccessToken;
     } catch (error) {
       console.error("Token refresh failed:", error);
       set({

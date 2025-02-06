@@ -92,20 +92,35 @@ exports.login = async (req, res) => {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     });
 
+    // 🔹 Store Refresh Token in HTTP-only Cookie
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
+      httpOnly: true, // Prevents JavaScript access (security)
+      secure: process.env.NODE_ENV === "production", // Use only in HTTPS
+      sameSite: "strict", // Prevent CSRF attacks
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // 🔹 Store Access Token in Secure Cookie
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true, // More secure, but frontend can't access it
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
-    console.log(refreshToken);
 
-    console.log(accessToken);
-    const { password: _, ...empwithoutPass } = employee.toJSON();
+    const { password: _, ...employeeDetails } = employee.toJSON();
+
+    res.cookie("employeeData", JSON.stringify(employeeDetails), {
+      httpOnly: false, // Allow frontend access
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 1 * 60 * 60 * 1000, // 1 hour
+    });
+
     res.status(201).json({
       message: "User created and logged in successfully",
       accessToken: accessToken,
-      employeeDetails: empwithoutPass,
+      employeeDetails: employeeDetails,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -126,7 +141,15 @@ exports.logout = async (req, res) => {
     }
 
     await Token.destroy({ where: { token: refreshToken } });
+
+    // Clear cookies for both refreshToken & accessToken
     res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.clearCookie("accessToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
@@ -137,7 +160,6 @@ exports.logout = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 exports.refreshTokenAction = async (req, res) => {
   try {
     const { refreshToken } = req.cookies;
@@ -154,14 +176,19 @@ exports.refreshTokenAction = async (req, res) => {
     }
 
     const employee = await Employee.findByPk(tokenData.employeeId);
-    const newAccessToken = generateAccessToken(user);
-    const newRefreshToken = generateRefreshToken(user);
+    if (!employee) {
+      return res.status(401).json({ error: "Employee not found" });
+    }
 
+    const newAccessToken = generateAccessToken(employee);
+    const newRefreshToken = generateRefreshToken(employee);
+
+    // Remove old refresh token and create a new one
     await Token.destroy({ where: { token: refreshToken } });
     await Token.create({
       employeeId: employee.id,
       token: newRefreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
     res.cookie("refreshToken", newRefreshToken, {
@@ -173,6 +200,7 @@ exports.refreshTokenAction = async (req, res) => {
     res.json({
       message: "Token refreshed successfully",
       accessToken: newAccessToken,
+      refreshToken: newRefreshToken, // Include new refresh token in response
       employeeDetails: employee,
     });
   } catch (error) {

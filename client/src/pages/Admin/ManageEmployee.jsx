@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal, Form, Input, Select, Table, message } from "antd";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../services/api";
 
 const { Option } = Select;
 
@@ -15,7 +15,7 @@ const ManageEmployees = () => {
   // Fetch employees from the backend
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get("/api/employees"); // Replace with your actual API endpoint
+      const response = await axiosInstance.get("/api/v1/emp/get-employee"); // Replace with your actual API endpoint
       const data = response.data;
       setEmployees(Array.isArray(data) ? data : []); // Ensure it's an array
     } catch (error) {
@@ -32,15 +32,14 @@ const ManageEmployees = () => {
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      if (currentEmployee) {
-        // Update employee
-        await axios.put(`/api/employees/${currentEmployee.id}`, values); // Replace with your API endpoint
-        message.success("Employee updated successfully");
-      } else {
-        // Create new employee
-        await axios.post("/api/employees", values); // Replace with your API endpoint
-        message.success("Employee created successfully");
-      }
+      // Create new employee
+      const res = await axiosInstance.post(
+        "api/v1/emp/create-employee",
+        values
+      ); // Replace with your API endpoint
+      console.log(res, `Employee creation`);
+      message.success("Employee created successfully");
+
       setIsModalOpen(false);
       fetchEmployees();
     } catch (error) {

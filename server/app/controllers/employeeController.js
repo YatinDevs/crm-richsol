@@ -10,6 +10,8 @@ const {
 // only admin or hr can create employees
 exports.createEmployee = async (req, res) => {
   try {
+    console.log(req.body);
+
     const { username, email, password, role } = req.body;
     console.log(username, email, password, role);
 
