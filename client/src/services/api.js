@@ -1,8 +1,8 @@
 import axios from "axios";
 import Cookies from "js-cookie"; // For reading cookies
 import useAuthStore from "../store/authStore";
-const API_BASE_URL = "http://192.168.0.241:8099/";
-// const API_BASE_URL = "http://localhost:8099/";
+// const API_BASE_URL = "http://192.168.0.241:8098/";
+const API_BASE_URL = "http://localhost:8098/";
 
 // const API_BASE_URL = ":8088/";
 

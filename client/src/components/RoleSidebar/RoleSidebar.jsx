@@ -36,7 +36,7 @@ const sidebars = {
       label: "Manage Clients",
       icon: Briefcase,
       subMenu: [
-        { label: "Add New Client", link: "clients/add" },
+        { label: "Add New Client", link: "/dashboard/clients/add" },
         { label: "Client List", link: "clients/list" },
       ],
     },

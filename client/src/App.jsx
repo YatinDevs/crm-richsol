@@ -19,6 +19,7 @@ import AddEmployee from "./pages/ManageEmp/AddEmployee";
 import EmployeeList from "./pages/ManageEmp/EmployeeList";
 import ManageAttendance from "./pages/ManageEmp/ManageAttendance";
 import ManageLeaveRequest from "./pages/ManageEmp/ManageLeaveRequest";
+import ClientForm from "./pages/ManageClient/ClientForm";
 
 function App() {
   const { initialize, isAuthenticated } = useAuthStore();
@@ -67,6 +68,7 @@ function App() {
             element={<ManageLeaveRequest />}
           />
           <Route path="/dashboard/clients" element={<ManageClients />} />
+          <Route path="/dashboard/clients/add" element={<ClientForm />} />
           <Route path="/dashboard/tasks" element={<ManageTasks />} />
         </Route>
       </>
