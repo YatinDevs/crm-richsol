@@ -10,13 +10,13 @@ import useAuthStore from "../../../store/authStore";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { logOut, employee } = useAuthStore();
+  const { logout, employee } = useAuthStore();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const handleLogout = async () => {
     try {
-      const res = await logOut(); // Ensure backend logout request
+      const res = await logout(); // Ensure backend logout request
       console.log(res);
       navigate("/"); // Redirect to home after logout
     } catch (error) {
@@ -69,7 +69,7 @@ const Profile = () => {
       {open && (
         <div className="origin-top-right leading-none absolute text-[13px] right-[-12px] mt-2 w-40 rounded-md shadow-lg bg-white ring-1  ring-blue-900 ring-opacity-1">
           <div className="py-1 flex justify-between items-center gap-6 active:scale-95">
-            <div className="px-5">{employee.username}</div>
+            <div className="px-5">{employee?.username}</div>
             <div className="mr-2">
               <Button shape="circle" className="text-[20px]">
                 <FaIdCard />

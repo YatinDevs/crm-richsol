@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie"; // For reading cookies
 import useAuthStore from "../store/authStore";
 // const API_BASE_URL = "http://192.168.0.241:8098/";
-const API_BASE_URL = "http://localhost:8098/";
+const API_BASE_URL = "http://localhost:8098/api/v1";
 
 // const API_BASE_URL = ":8088/";
 
@@ -15,14 +15,9 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// Request Interceptor to attach the access token
+// Request Interceptor (Optional)
 axiosInstance.interceptors.request.use(
   (config) => {
-    const accessToken = Cookies.get("accessToken");
-    console.log(accessToken);
-    if (accessToken) {
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
-    }
     return config;
   },
   (error) => {
@@ -30,39 +25,24 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Response Interceptor to handle token refresh
+// Response Interceptor (Handle 401 - Expired Token)
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    // If the access token is expired (401 error) and we haven't tried refreshing yet
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
-      // ✅ Extract actions from Zustand store
-      const { refreshTokenAction, logOut } = useAuthStore();
       try {
-        const newAccessToken = await refreshTokenAction();
-        if (!newAccessToken) throw new Error("No new access token received");
-
-        // ✅ Store new token in Cookies
-        Cookies.set("accessToken", newAccessToken, {
-          httpOnly: false, // 🔸 Frontend needs access
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "Lax",
-          expires: 1 / 24, // 1 hour (fraction of a day)
+        // Try refreshing the token
+        await axios.get(`${API_BASE_URL}/auth/refresh`, {
+          withCredentials: true,
         });
-
-        // ✅ Attach new token and retry original request
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        return axiosInstance(originalRequest);
+        return axiosInstance(originalRequest); // Retry original request
       } catch (refreshError) {
-        console.error("Failed to refresh token:", refreshError);
-        logOut(); // ✅ Ensure user logs out only once
+        console.error("Refresh token expired, logging out...");
         return Promise.reject(refreshError);
       }
     }
-
     return Promise.reject(error);
   }
 );

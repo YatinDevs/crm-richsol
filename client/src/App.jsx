@@ -11,7 +11,6 @@ import AuthPage from "./pages/AuthPages/AuthPage";
 import SignupPage from "./pages/AuthPages/SignupPage";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
-import useAuthStore from "./store/authStore";
 import ManageEmployee from "./pages/Admin/ManageEmployee";
 import ManageClients from "./pages/Admin/ManageClients";
 import ManageTasks from "./pages/Admin/ManageTasks";
@@ -20,12 +19,15 @@ import EmployeeList from "./pages/ManageEmp/EmployeeList";
 import ManageAttendance from "./pages/ManageEmp/ManageAttendance";
 import ManageLeaveRequest from "./pages/ManageEmp/ManageLeaveRequest";
 import ClientForm from "./pages/ManageClient/ClientForm";
+import useAuthStore from "./store/authStore";
 
 function App() {
-  const { initialize, isAuthenticated } = useAuthStore();
+  const { checkAuth, employee, isAuthenticated } = useAuthStore();
+  console.log(employee);
+  console.log(isAuthenticated);
   useEffect(() => {
-    initialize(); // Initialize auth state from localStorage or cookies
-  }, [initialize]);
+    checkAuth();
+  }, []);
 
   const router = createBrowserRouter(
     createRoutesFromElements(

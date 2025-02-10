@@ -6,9 +6,14 @@ import useAuthStore from "../../store/authStore";
 
 function AuthPage() {
   const [rememberMeTerms, setRememberMeTerms] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [form] = Form.useForm();
-  const logIn = useAuthStore((state) => state.logIn);
+  const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (values) => {
     if (!rememberMeTerms) {
@@ -17,11 +22,10 @@ function AuthPage() {
       );
     }
     try {
-      await logIn(values);
-
+      const success = await login(formData);
       message.success("Login successful");
       form.resetFields();
-      navigate("/dashboard");
+      if (success) navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error.message);
       message.error("Login failed. Please check your credentials.");
@@ -63,6 +67,7 @@ function AuthPage() {
                     name="email"
                     placeholder="Enter Email Id"
                     className="shadow-md rounded-md h-12 input-blue "
+                    onChange={handleChange}
                   />
                 </Form.Item>
               </div>
@@ -81,6 +86,7 @@ function AuthPage() {
                     name="password"
                     placeholder="Enter your Password"
                     className="shadow-md rounded-md h-12 input-blue"
+                    onChange={handleChange}
                   />
                 </Form.Item>
                 <div className="text-slate-600 text-sm cursor-pointer flex items-center justify-between ">

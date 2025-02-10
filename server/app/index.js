@@ -12,13 +12,23 @@ const sequelize = require("./utils/db");
 
 const Employee = require("./models/employeeModel");
 const Token = require("./models/tokenModel");
-const models = { Employee, Token };
+const Client = require("./models/clientModel");
+const Service = require("./models/serviceModel");
+const Task = require("./models/taskModel");
+
+const models = { Employee, Token, Client, Task, Service };
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {
     models[modelName].associate(models);
   }
 });
+
+// Routes
+const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const employeeRoutes = require("./routes/employeeRoutes");
+const clientRoutes = require("./routes/clientRoutes");
 
 const app = express();
 
@@ -44,21 +54,17 @@ app.get("/dev", (req, res) => {
 });
 
 // Routes
-const authRoutes = require("./routes/authRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const employeeRoutes = require("./routes/employeeRoutes");
-
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/emp", employeeRoutes);
-
+app.use("/api/v1/client", clientRoutes);
 sequelize
   .authenticate()
   .then(() => {
     console.log(
       "Connection to the database has been established successfully."
     );
-    return sequelize.sync();
+    return sequelize.sync({ alter: true });
   })
   .then(() => {
     console.log("Models have been synchronized with the database.");

@@ -12,7 +12,26 @@ exports.createEmployee = async (req, res) => {
   try {
     console.log(req.body);
 
-    const { username, email, password, role } = req.body;
+    const {
+      username,
+      email,
+      password,
+      role,
+      phone,
+      alternate_phone,
+      designation,
+      department,
+      dob,
+      joining_date,
+      probation_end_date,
+      training_end_date,
+      increment_date,
+      anniversary_date,
+      address,
+      blood_group,
+      reference_contacts,
+      attachments,
+    } = req.body;
     console.log(username, email, password, role);
 
     const exisitingEmployee = await Employee.findOne({ where: { email } });
@@ -27,6 +46,20 @@ exports.createEmployee = async (req, res) => {
       email,
       password: hashedPassword,
       role: role,
+      phone,
+      alternate_phone,
+      designation,
+      department,
+      dob,
+      joining_date,
+      probation_end_date,
+      training_end_date,
+      increment_date,
+      anniversary_date,
+      address,
+      blood_group,
+      reference_contacts,
+      attachments,
     });
 
     res.status(201).json({

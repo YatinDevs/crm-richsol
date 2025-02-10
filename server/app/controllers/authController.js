@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
     if (!isPasswordValid) {
       return res
         .status(401)
-        .json({ success: false, error: "Invalid password." });
+        .json({ success: false, error: "Invalid credentials." });
     }
     const accessToken = generateAccessToken(employee);
     const refreshToken = generateRefreshToken(employee);
@@ -86,41 +86,18 @@ exports.login = async (req, res) => {
     console.log(accessToken, `access`);
     console.log(refreshToken, `refresh`);
 
+    await Token.destroy({ where: { employeeId: employee.id } }); // Invalidate old refresh tokens
+
     await Token.create({
       employeeId: employee.id,
       token: refreshToken,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     });
 
-    // 🔹 Store Refresh Token in HTTP-only Cookie
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true, // Prevents JavaScript access (security)
-      secure: process.env.NODE_ENV === "production", // Use only in HTTPS
-      sameSite: "strict", // Prevent CSRF attacks
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    // 🔹 Store Access Token in Secure Cookie
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true, // More secure, but frontend can't access it
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 1 * 60 * 60 * 1000, // 1 hour
-    });
-
-    const { password: _, ...employeeDetails } = employee.toJSON();
-
-    res.cookie("employeeData", JSON.stringify(employeeDetails), {
-      httpOnly: false, // Allow frontend access
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 1 * 60 * 60 * 1000, // 1 hour
-    });
+    setAuthCookies(res, accessToken, refreshToken);
 
     res.status(201).json({
-      message: "User created and logged in successfully",
-      accessToken: accessToken,
-      employeeDetails: employeeDetails,
+      message: "Employee logged in successfully",
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -130,50 +107,29 @@ exports.login = async (req, res) => {
 exports.logout = async (req, res) => {
   try {
     const { refreshToken } = req.cookies;
-
-    if (!refreshToken) {
+    if (!refreshToken)
       return res.status(400).json({ error: "No refresh token provided" });
-    }
-
-    const tokenData = await Token.findOne({ where: { token: refreshToken } });
-    if (!tokenData) {
-      return res.status(400).json({ error: "Invalid refresh token" });
-    }
 
     await Token.destroy({ where: { token: refreshToken } });
 
-    // Clear cookies for both refreshToken & accessToken
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
-
-    res.clearCookie("accessToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
-
+    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken");
     res.json({ message: "Logged out successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-exports.refreshTokenAction = async (req, res) => {
+exports.refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.cookies;
-
-    if (!refreshToken) {
+    if (!refreshToken)
       return res.status(401).json({ error: "No refresh token provided" });
-    }
 
     const tokenData = await Token.findOne({ where: { token: refreshToken } });
-    if (!tokenData || tokenData.expiresAt < new Date()) {
+    if (!tokenData || tokenData.expiresAt < new Date())
       return res
         .status(401)
         .json({ error: "Invalid or expired refresh token" });
-    }
 
     const employee = await Employee.findByPk(tokenData.employeeId);
     if (!employee) {
@@ -183,27 +139,54 @@ exports.refreshTokenAction = async (req, res) => {
     const newAccessToken = generateAccessToken(employee);
     const newRefreshToken = generateRefreshToken(employee);
 
-    // Remove old refresh token and create a new one
-    await Token.destroy({ where: { token: refreshToken } });
+    await Token.destroy({ where: { token: refreshToken } }); // Rotate refresh token
     await Token.create({
       employeeId: employee.id,
       token: newRefreshToken,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
+    setAuthCookies(res, newAccessToken, newRefreshToken);
 
-    res.json({
-      message: "Token refreshed successfully",
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken, // Include new refresh token in response
-      employeeDetails: employee,
-    });
+    res.json({ message: "Token refreshed successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+exports.getEmp = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { accessToken } = req.cookies;
+    // console.log(em);
+    if (!accessToken)
+      return res.status(401).json({ error: "No token provided" });
+
+    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const employee = await Employee.findByPk(decoded.id, {
+      attributes: ["id", "username", "email", "role"],
+    });
+
+    if (!employee) return res.status(404).json({ error: "Employee not found" });
+
+    res.json({ employee });
+  } catch (error) {
+    res.status(401).json({ error: "Unauthorized" });
+  }
+};
+// Helper function to set cookies
+const setAuthCookies = (res, accessToken, refreshToken) => {
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 15 * 60 * 1000, // 15 minutes
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
 };

@@ -4,6 +4,7 @@ const { Client, Sale, Invoice } = require("../models");
 // Create a new client
 exports.createClient = async (req, res) => {
   try {
+    console.log(req.body);
     const client = await Client.create(req.body);
     res.status(201).json(client);
   } catch (error) {
