@@ -8,9 +8,9 @@ const Task = sequelize.define(
   "Task",
   {
     task_id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
     },
     title: {
       type: DataTypes.STRING,
@@ -21,34 +21,20 @@ const Task = sequelize.define(
     },
     assigned_to: {
       type: DataTypes.INTEGER,
-      references: {
-        model: Employee,
-        key: "id",
-      },
+
       allowNull: false,
     },
     assigned_by: {
       type: DataTypes.INTEGER,
-      references: {
-        model: Employee,
-        key: "id",
-      },
+
       allowNull: false,
     },
-    client_id: {
-      type: DataTypes.UUID,
-      references: {
-        model: Client,
-        key: "client_id",
-      },
+    for_client_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
-    service_id: {
-      type: DataTypes.UUID,
-      references: {
-        model: Service,
-        key: "service_id",
-      },
+    for_service_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     priority: {

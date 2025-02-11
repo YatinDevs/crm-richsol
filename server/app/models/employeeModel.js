@@ -34,11 +34,12 @@ const Employee = sequelize.define(
         "hr",
         "accounts",
         "sales",
-        "support"
+        "support",
+        "tech"
       ),
       defaultValue: "employee",
     },
-    // Verification and Required documents of employee
+
     phone: {
       type: DataTypes.STRING(15),
       unique: true,
@@ -85,29 +86,19 @@ const Employee = sequelize.define(
     blood_group: {
       type: DataTypes.STRING(5),
     },
+    status: {
+      type: DataTypes.ENUM("active", "inactive"),
+      defaultValue: "active",
+    },
     reference_contacts: {
       type: DataTypes.JSONB,
     },
     attachments: {
       type: DataTypes.JSONB,
     },
-    // assigned_clients: {
-    //   type: DataTypes.ARRAY(DataTypes.INTEGER),
-    //   references: {
-    //     model: Client,
-    //     key: "client_id",
-    //   },
-    // },
-    // assigned_tasks: {
-    //   type: DataTypes.ARRAY(DataTypes.INTEGER),
-    //   references: {
-    //     model: Task,
-    //     key: "task_id",
-    //   },
-    // },
   },
   {
-    tableName: "Employees",
+    tableName: "employees",
     timestamps: true,
   }
 );

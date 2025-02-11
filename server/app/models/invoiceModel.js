@@ -7,24 +7,17 @@ const Invoice = sequelize.define(
   "Invoice",
   {
     invoice_id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
     },
     client_id: {
-      type: DataTypes.UUID,
-      references: {
-        model: Client,
-        key: "client_id",
-      },
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     sale_id: {
-      type: DataTypes.UUID,
-      references: {
-        model: Sale,
-        key: "sale_id",
-      },
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     amount_due: {
       type: DataTypes.FLOAT,
@@ -35,8 +28,13 @@ const Invoice = sequelize.define(
       defaultValue: 0,
     },
     status: {
-      type: DataTypes.ENUM("unpaid", "paid", "overdue"),
-      defaultValue: "unpaid",
+      type: DataTypes.ENUM("unpaid", "paid", "overdue", "pending", "cancelled"),
+      defaultValue: "pending",
+    },
+    issued_date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
     due_date: {
       type: DataTypes.DATE,

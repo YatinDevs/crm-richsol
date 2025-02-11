@@ -8,41 +8,31 @@ const Sale = sequelize.define(
   "Sale",
   {
     sale_id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
     },
     client_id: {
-      type: DataTypes.UUID,
-      references: {
-        model: Client,
-        key: "client_id",
-      },
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     employee_id: {
       type: DataTypes.INTEGER,
-      references: {
-        model: Employee,
-        key: "id",
-      },
+      allowNull: false,
     },
     service_id: {
-      type: DataTypes.UUID,
-      references: {
-        model: Service,
-        key: "service_id",
-      },
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     amount: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.FLOAT, // sales step 3
       allowNull: false,
     },
     gst_value: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.FLOAT, // sales step 3
     },
     total_amount: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.FLOAT, // sales step 3
       allowNull: false,
     },
     payment_status: {

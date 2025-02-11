@@ -6,9 +6,9 @@ const Service = sequelize.define(
   "Service",
   {
     service_id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
     },
     service_name: {
       type: DataTypes.ENUM(
@@ -18,18 +18,32 @@ const Service = sequelize.define(
         "Digital Marketing",
         "WhatsApp Tool Marketing",
         "Bulk SMS"
-      ),
+      ), // sales step 1 // list by sanika
       allowNull: false,
+    },
+    service_type: {
+      type: DataTypes.ENUM("GST", "Non-GST"),
+      allowNull: false, // sales step 2
     },
     description: {
       type: DataTypes.TEXT,
     },
-    validity: {
-      type: DataTypes.INTEGER, // In days
+    recharge_date: {
+      type: DataTypes.DATE, // sales step 2
+    },
+    validity_expire_date: {
+      type: DataTypes.DATE, // sales step 2
+    },
+    last_recharge_date: {
+      type: DataTypes.DATE, // sales step 2
     },
     price: {
       type: DataTypes.FLOAT,
-      allowNull: false,
+      allowNull: false, // sales step 2
+    },
+    sold_by: {
+      type: DataTypes.INTEGER,
+      allowNull: false, // sales step 2
     },
     created_at: {
       type: DataTypes.DATE,

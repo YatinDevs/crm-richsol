@@ -43,16 +43,10 @@ const ClientForm = () => {
   const next = async () => {
     try {
       const values = await form.validateFields();
-      setFormData((prev) => {
-        const updatedData = { ...prev, ...values };
-        return updatedData;
-      });
-
-      setTimeout(() => {
-        setCurrentStep((prev) => prev + 1);
-      }, 100); // Ensures state updates before step change
+      setFormData((prev) => ({ ...prev, ...values }));
+      setCurrentStep((prev) => prev + 1);
     } catch (error) {
-      message.error("Please fill all required fields");
+      message.error("Please fill all required fields.");
     }
   };
 
@@ -63,7 +57,14 @@ const ClientForm = () => {
     try {
       const values = await form.validateFields();
       const finalData = { ...formData, ...values };
-
+      // Explicitly format date fields
+      ["recharge_date", "validity_expire_date", "last_recharge_date"].forEach(
+        (key) => {
+          if (finalData[key]) {
+            finalData[key] = dayjs(finalData[key]).format("YYYY-MM-DD");
+          }
+        }
+      );
       // Format dates correctly
       Object.keys(finalData).forEach((key) => {
         if (dayjs.isDayjs(finalData[key])) {
@@ -72,7 +73,7 @@ const ClientForm = () => {
       });
 
       const response = await axiosInstance.post(
-        "http://localhost:8098/api/v1/client/create-client",
+        "/client/create-client",
         finalData
       );
 
@@ -157,13 +158,14 @@ const BusinessDetailsStep = () => (
     <Form.Item
       name="service_type"
       label="Service Type"
-      rules={[{ required: true }]}
+      rules={[{ required: true, message: "Please select a service type" }]}
     >
       <Select placeholder="Select service type">
         <Select.Option value="GST">GST</Select.Option>
         <Select.Option value="Non-GST">Non-GST</Select.Option>
       </Select>
     </Form.Item>
+
     <Form.Item name="gst_number" label="GST Number">
       <Input placeholder="Enter GST number" />
     </Form.Item>

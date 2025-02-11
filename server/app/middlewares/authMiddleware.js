@@ -7,18 +7,18 @@ exports.authenticate = (req, res, next) => {
     return res.status(401).json({ error: "Access token required" });
   }
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, employee) => {
     if (err) {
       return res.status(403).json({ error: "Invalid or expired token" });
     }
 
-    req.user = user; // Attach decoded user to request
+    req.employee = employee; // Attach decoded user to request
     next(); // Proceed to next middleware/controller
   });
 };
 
 exports.isAdmin = (req, res, next) => {
-  if (req.user.role !== "admin") {
+  if (req.employee.role !== "admin") {
     return res.status(403).json({ error: "Admin access required" });
   }
   next();

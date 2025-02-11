@@ -9,20 +9,14 @@ const morgan = require("morgan"); // logger
 // db setup
 const sequelize = require("./utils/db");
 // Models setup
-
-const Employee = require("./models/employeeModel");
-const Token = require("./models/tokenModel");
-const Client = require("./models/clientModel");
-const Service = require("./models/serviceModel");
-const Task = require("./models/taskModel");
-
-const models = { Employee, Token, Client, Task, Service };
-
-Object.keys(models).forEach((modelName) => {
-  if (models[modelName].associate) {
-    models[modelName].associate(models);
-  }
-});
+const {
+  Employee,
+  Client,
+  Service,
+  Sale,
+  Invoice,
+  Task,
+} = require("./models/associations");
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
@@ -58,13 +52,14 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/emp", employeeRoutes);
 app.use("/api/v1/client", clientRoutes);
+
 sequelize
   .authenticate()
   .then(() => {
     console.log(
       "Connection to the database has been established successfully."
     );
-    return sequelize.sync({ alter: true });
+    return sequelize.sync();
   })
   .then(() => {
     console.log("Models have been synchronized with the database.");

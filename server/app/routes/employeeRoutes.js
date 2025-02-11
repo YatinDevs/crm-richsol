@@ -18,8 +18,8 @@ router.post(
 
 router.get(
   "/get-employee",
-  // authenticate,
-  // checkRole(["admin", "hr"]),
+  authenticate,
+  checkRole([""]),
   employeeController.getAllEmployee
 );
 
