@@ -20,6 +20,7 @@ import ManageAttendance from "./pages/ManageEmp/ManageAttendance";
 import ManageLeaveRequest from "./pages/ManageEmp/ManageLeaveRequest";
 import ClientForm from "./pages/ManageClient/ClientForm";
 import useAuthStore from "./store/authStore";
+import InvoiceGenerator from "./pages/ManageAccounts/InvoiceGenerator";
 
 function App() {
   const { checkAuth, employee, isAuthenticated } = useAuthStore();
@@ -72,6 +73,10 @@ function App() {
           <Route path="/dashboard/clients" element={<ManageClients />} />
           <Route path="/dashboard/clients/add" element={<ClientForm />} />
           <Route path="/dashboard/tasks" element={<ManageTasks />} />
+          <Route
+            path="/dashboard/accounts/invoice"
+            element={<InvoiceGenerator />}
+          />
         </Route>
       </>
     )

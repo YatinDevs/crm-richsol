@@ -1,53 +1,22 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../utils/db");
-const Client = require("./clientModel");
-const Sale = require("./saleModel");
 
-const Invoice = sequelize.define(
-  "Invoice",
-  {
-    invoice_id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    client_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    sale_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    amount_due: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-    amount_paid: {
-      type: DataTypes.FLOAT,
-      defaultValue: 0,
-    },
-    status: {
-      type: DataTypes.ENUM("unpaid", "paid", "overdue", "pending", "cancelled"),
-      defaultValue: "pending",
-    },
-    issued_date: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    due_date: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    notes: {
-      type: DataTypes.TEXT,
-    },
+const Invoice = sequelize.define("Invoice", {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
   },
-  {
-    tableName: "invoices",
-    timestamps: true,
-  }
-);
+  type: { type: DataTypes.ENUM("proforma", "tax"), allowNull: false },
+  invoiceNo: { type: DataTypes.STRING, allowNull: false },
+  date: { type: DataTypes.DATEONLY, allowNull: false },
+  company: { type: DataTypes.JSONB, allowNull: false },
+  buyer: { type: DataTypes.JSONB, allowNull: false },
+  items: { type: DataTypes.JSONB, allowNull: false },
+  totalTax: { type: DataTypes.FLOAT, allowNull: false },
+  totalAmount: { type: DataTypes.FLOAT, allowNull: false },
+  amountInWords: { type: DataTypes.STRING, allowNull: false },
+  bank: { type: DataTypes.JSONB },
+});
 
 module.exports = Invoice;

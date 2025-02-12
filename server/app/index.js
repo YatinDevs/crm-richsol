@@ -23,7 +23,7 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const clientRoutes = require("./routes/clientRoutes");
-
+const invoiceRoutes = require("./routes/invoiceRoutes");
 const app = express();
 
 // CORS policy
@@ -52,6 +52,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/emp", employeeRoutes);
 app.use("/api/v1/client", clientRoutes);
+app.use("/api/v1/invoice", invoiceRoutes);
 
 sequelize
   .authenticate()

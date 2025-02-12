@@ -52,6 +52,7 @@ const sidebars = {
       label: "Invoices & Billing",
       icon: FileText,
       subMenu: [
+        { label: "Generate Porforma", link: "/dashboard/accounts/invoice" },
         { label: "Create Invoice", link: "invoices/create" },
         { label: "View Invoices", link: "invoices/list" },
       ],
