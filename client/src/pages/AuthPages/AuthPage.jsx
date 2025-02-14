@@ -22,13 +22,19 @@ function AuthPage() {
       );
     }
     try {
-      const success = await login(formData);
-      message.success("Login successful");
-      form.resetFields();
-      if (success) navigate("/dashboard");
+      const response = await login(formData);
+      console.log("Response:", response);
+
+      if (response.success) {
+        message.success(response.message);
+        form.resetFields();
+        navigate("/dashboard");
+      } else {
+        throw new Error(response.error || "Login failed");
+      }
     } catch (error) {
-      console.error("Login error:", error.message);
-      message.error("Login failed. Please check your credentials.");
+      console.error("Login Issue:", error);
+      message.error(error.message || "Something went wrong");
     }
   };
 

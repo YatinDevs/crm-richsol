@@ -6,50 +6,60 @@ const Employee = require("./employeeModel");
 const Client = sequelize.define(
   "Client",
   {
+    // Personal Info
     client_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
     company_name: {
-      // sales step 1
+      // client Onboarding details step 1
       type: DataTypes.STRING,
       allowNull: false,
     },
-    address: {
-      // sales step 1
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
     owner_name: {
-      // sales step 1
+      // client Onboarding details step 1
       type: DataTypes.STRING,
       allowNull: false,
     },
     owner_phone: {
-      // sales
+      // client Onboarding details step 1
       type: DataTypes.STRING,
       allowNull: false,
     },
+    address: {
+      // client Onboarding details step 1
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+
+    // BusinessDetails
+    service_type: {
+      type: DataTypes.ENUM("GST", "Non-GST"),
+      allowNull: false, // sales step 2
+    },
+    gst_number: {
+      // client Onboarding details step 1
+      type: DataTypes.STRING,
+    },
     coordinator_name: {
-      // sales step 1
+      // client Onboarding details step 1
       type: DataTypes.STRING,
     },
     coordinator_phone: {
-      // sales step 1
+      // client Onboarding details step 1
       type: DataTypes.STRING,
     },
-    gst_number: {
+    panel_name: {
       type: DataTypes.STRING,
     },
     purchased_products: {
+      // client Onboarding details step 1
       type: DataTypes.JSONB,
       defaultValue: [],
     },
-    onboarded_by: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+
+    // Client Credentials
     email: {
       // sales step 1
       type: DataTypes.STRING,
@@ -59,32 +69,22 @@ const Client = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    panel_name: {
-      type: DataTypes.STRING,
-    },
-    service_type: {
-      type: DataTypes.ENUM("GST", "Non-GST"),
-      allowNull: false, // sales step 2
-    },
-    recharge_date: {
-      type: DataTypes.DATE, // sales step 2
-    },
-    validity_expire_date: {
-      type: DataTypes.DATE, // sales step 2
-    },
-    last_recharge_date: {
-      type: DataTypes.DATE, // sales step 2
-    },
-    status: {
-      type: DataTypes.ENUM("active", "inactive"),
-      defaultValue: "active",
+    priority_level: {
+      type: DataTypes.ENUM("Normal", "High", "Critical"),
+      defaultValue: "Normal",
     },
     notes: {
       type: DataTypes.TEXT,
     },
-    priority_level: {
-      type: DataTypes.ENUM("Normal", "High", "Critical"),
-      defaultValue: "Normal",
+
+    onboarded_by: {
+      // client Onboarding details step 1
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM("active", "inactive"),
+      defaultValue: "active",
     },
     created_at: {
       type: DataTypes.DATE,

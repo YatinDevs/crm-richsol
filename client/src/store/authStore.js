@@ -14,23 +14,23 @@ const useAuthStore = create((set) => ({
 
   login: async (formData) => {
     try {
-      await axiosInstance.post("/auth/login", formData);
+      const response = await axiosInstance.post("/auth/login", formData);
       await useAuthStore.getState().checkAuth();
-      return true;
+      return response.data;
     } catch (error) {
-      console.error("Login failed:", error);
-      return false;
+      // console.error("Login failed:", error);
+      return error;
     }
   },
 
   signup: async (formData) => {
     try {
-      await axiosInstance.post("/auth/signup", formData);
+      const response = await axiosInstance.post("/auth/signup", formData);
       await useAuthStore.getState().checkAuth();
-      return true;
+      return response.data;
     } catch (error) {
       console.error("Signup failed:", error);
-      return false;
+      return error;
     }
   },
 
@@ -39,8 +39,10 @@ const useAuthStore = create((set) => ({
       const res = await axiosInstance.get("/auth/me");
       console.log(res);
       set({ employee: res.data.employee, isAuthenticated: true });
+      return res.data;
     } catch (error) {
       set({ employee: null, isAuthenticated: false });
+      return error;
     }
   },
 

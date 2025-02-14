@@ -63,20 +63,71 @@ exports.createEmployee = async (req, res) => {
     });
 
     res.status(201).json({
-      message: "Employee Onboarded successfully",
+      message: "Employee Onboarded successfully!",
       employeeDetails: employee,
+      success: true,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      error: error.message,
+      message: "Employee Onboarded failed!",
+      success: false,
+    });
   }
 };
 
 exports.getAllEmployee = async (req, res) => {
   try {
     const employee = await Employee.findAll();
-    res.json(employee);
+    res.status(201).json({
+      message: "Employee Listing Retrieved successfully!",
+      employeeDetails: employee,
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      message: "Employee Listing Retrieved Failed!",
+      success: false,
+    });
+  }
+};
+
+// Delete employee
+exports.deactivateEmployee = async (req, res) => {
+  try {
+    const employee = await Employee.findByPk(req.params.id);
+
+    if (!employee) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
+
+    // Update employee status to inactive
+    await employee.update({ status: "inactive" });
+
+    res.status(200).json({
+      message: "Employee deactivated successfully!",
+      employeeDetails: employee,
+      success: true,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+// Update employee
+exports.updateEmployee = async (req, res) => {
+  try {
+    console.log(req.body);
+    const employee = await Employee.findByPk(req.params.id);
+    if (!employee) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
+    let res = await employee.update(req.body);
+    console.log(res);
+    res.status(200).json(employee);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };
 // Get employee by ID
@@ -87,34 +138,6 @@ exports.getEmployeeById = async (req, res) => {
       return res.status(404).json({ error: "Employee not found" });
     }
     res.status(200).json(employee);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-// Update employee
-exports.updateEmployee = async (req, res) => {
-  try {
-    const employee = await Employee.findByPk(req.params.id);
-    if (!employee) {
-      return res.status(404).json({ error: "Employee not found" });
-    }
-    await employee.update(req.body);
-    res.status(200).json(employee);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-// Delete employee
-exports.deleteEmployee = async (req, res) => {
-  try {
-    const employee = await Employee.findByPk(req.params.id);
-    if (!employee) {
-      return res.status(404).json({ error: "Employee not found" });
-    }
-    await employee.destroy();
-    res.status(204).json();
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

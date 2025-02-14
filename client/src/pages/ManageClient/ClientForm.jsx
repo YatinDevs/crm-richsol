@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { Form, Input, Button, Select, Steps, DatePicker, message } from "antd";
+import { Form, Input, Button, Select, Steps, Space, message } from "antd";
 import {
   AiOutlineUser,
   AiOutlineSolution,
@@ -8,144 +8,99 @@ import {
   AiOutlineCalendar,
 } from "react-icons/ai";
 import axiosInstance from "../../services/api";
+import useAuthStore from "../../store/authStore";
 
 const { Step } = Steps;
 
 const ClientForm = () => {
+  const { employee } = useAuthStore();
+  useEffect(() => {
+    console.log(employee);
+    setFormData({ onboarded_by: employee?.id });
+  }, []);
   const [currentStep, setCurrentStep] = useState(0);
   const [form] = Form.useForm();
+  const [formData, setFormData] = useState({});
+  console.log(formData);
 
-  // Default form data
-  const defaultFormData = {
-    company_name: "",
-    address: "",
-    owner_name: "",
-    owner_phone: "",
-    service_type: "",
-    gst_number: "",
-    panel_name: "",
-    purchased_products: "",
-    email: "",
-    password: "",
-    status: "active",
-    priority_level: "Normal",
-    recharge_date: null,
-    validity_expire_date: null,
-    last_recharge_date: null,
-  };
-
-  // Persist form data across steps
-  const [formData, setFormData] = useState(defaultFormData);
-
-  useEffect(() => {
-    form.setFieldsValue(formData);
-  }, [formData, form]);
-  const next = async () => {
+  const handleNext = async () => {
     try {
       const values = await form.validateFields();
       setFormData((prev) => ({ ...prev, ...values }));
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep(currentStep + 1);
     } catch (error) {
-      message.error("Please fill all required fields.");
+      console.log("Validation failed:", error);
     }
   };
 
-  const prev = () => setCurrentStep(currentStep - 1);
+  const handlePrev = () => setCurrentStep(currentStep - 1);
 
-  const handleFinish = async () => {
-    if (currentStep !== 3) return; // Prevents submission before step
+  const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
       const finalData = { ...formData, ...values };
-      // Explicitly format date fields
-      ["recharge_date", "validity_expire_date", "last_recharge_date"].forEach(
-        (key) => {
-          if (finalData[key]) {
-            finalData[key] = dayjs(finalData[key]).format("YYYY-MM-DD");
-          }
-        }
-      );
-      // Format dates correctly
+
       Object.keys(finalData).forEach((key) => {
-        if (dayjs.isDayjs(finalData[key])) {
+        if (finalData[key] instanceof dayjs) {
           finalData[key] = finalData[key].format("YYYY-MM-DD");
         }
       });
 
-      const response = await axiosInstance.post(
-        "/client/create-client",
-        finalData
-      );
+      const response = await axiosInstance.post("/client/create", finalData);
 
       if (response.data.success) {
         message.success("Client onboarded successfully");
         form.resetFields();
-        setFormData(defaultFormData);
+        setFormData({ onboarded_by: employee.id });
         setCurrentStep(0);
       } else {
         message.error(response.data.message || "Failed to add client");
       }
     } catch (error) {
-      message.error("Error submitting form. Please try again.");
+      console.error("API Error:", error);
+      message.error(error.response?.data?.message || "An error occurred");
     }
   };
 
   return (
     <div className="p-6 mx-2 mt-10 bg-white shadow-lg rounded-lg">
       <Steps current={currentStep}>
-        <Step
-          title="Personal Info"
-          icon={<AiOutlineUser />}
-          onClick={() => setCurrentStep(0)}
-        />
-        <Step
-          title="Business Details"
-          icon={<AiOutlineSolution />}
-          onClick={() => setCurrentStep(1)}
-        />
-        <Step
-          title="Work & Status"
-          icon={<AiOutlineLock />}
-          onClick={() => setCurrentStep(2)}
-        />
-        <Step
-          title="Additional Info"
-          icon={<AiOutlineCalendar />}
-          onClick={() => setCurrentStep(3)}
-        />
+        <Step title="Personal Info" icon={<AiOutlineUser />} />
+        <Step title="Business Details" icon={<AiOutlineSolution />} />
+        <Step title="Work & Status" icon={<AiOutlineLock />} />
+        <Step title="Additional Info" icon={<AiOutlineCalendar />} />
       </Steps>
 
       <Form
         form={form}
         layout="vertical"
-        onFinish={handleFinish}
+        initialValues={formData}
         className="mt-6"
       >
-        {currentStep === 0 && (
-          <PersonalInfoStep form={form} formData={formData} />
-        )}
-        {currentStep === 1 && (
-          <BusinessDetailsStep form={form} formData={formData} />
-        )}
-        {currentStep === 2 && (
-          <WorkStatusStep form={form} formData={formData} />
-        )}
-        {currentStep === 3 && (
-          <AdditionalInfoStep form={form} formData={formData} />
-        )}
+        {currentStep === 0 && <PersonalInfoStep />}
+        {currentStep === 1 && <BusinessDetailsStep />}
+        {currentStep === 2 && <CreatingCredentials />}
 
-        <div className="flex justify-between mt-6">
-          {currentStep > 0 && <Button onClick={prev}>Back</Button>}
-          {currentStep < 3 ? (
-            <Button type="primary" onClick={next}>
+        <Space className="mt-6">
+          {currentStep > 0 && (
+            <Button onClick={handlePrev} className="bg-gray-500 text-white">
+              Back
+            </Button>
+          )}
+          {currentStep < 2 ? (
+            <Button type="primary" onClick={handleNext} className="bg-blue-500">
               Next
             </Button>
           ) : (
-            <Button type="primary" htmlType="submit">
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              className="bg-green-500"
+            >
               Submit
             </Button>
           )}
-        </div>
+        </Space>
       </Form>
     </div>
   );
@@ -153,30 +108,6 @@ const ClientForm = () => {
 
 export default ClientForm;
 
-const BusinessDetailsStep = () => (
-  <>
-    <Form.Item
-      name="service_type"
-      label="Service Type"
-      rules={[{ required: true, message: "Please select a service type" }]}
-    >
-      <Select placeholder="Select service type">
-        <Select.Option value="GST">GST</Select.Option>
-        <Select.Option value="Non-GST">Non-GST</Select.Option>
-      </Select>
-    </Form.Item>
-
-    <Form.Item name="gst_number" label="GST Number">
-      <Input placeholder="Enter GST number" />
-    </Form.Item>
-    <Form.Item name="panel_name" label="Panel Name">
-      <Input placeholder="Enter panel name" />
-    </Form.Item>
-    <Form.Item name="purchased_products" label="Purchased Products">
-      <Input.TextArea placeholder="List purchased products" />
-    </Form.Item>
-  </>
-);
 const PersonalInfoStep = () => (
   <>
     <Form.Item
@@ -185,9 +116,6 @@ const PersonalInfoStep = () => (
       rules={[{ required: true }]}
     >
       <Input placeholder="Enter company name" />
-    </Form.Item>
-    <Form.Item name="address" label="Address" rules={[{ required: true }]}>
-      <Input.TextArea placeholder="Enter address" />
     </Form.Item>
     <Form.Item
       name="owner_name"
@@ -203,10 +131,51 @@ const PersonalInfoStep = () => (
     >
       <Input placeholder="Enter owner phone" />
     </Form.Item>
+    <Form.Item name="address" label="Address" rules={[{ required: true }]}>
+      <Input.TextArea placeholder="Enter address" />
+    </Form.Item>
   </>
 );
 
-const WorkStatusStep = () => (
+const BusinessDetailsStep = () => (
+  <>
+    <Form.Item
+      name="service_type"
+      label="Service Type"
+      rules={[{ required: true }]}
+    >
+      <Select placeholder="Select service type">
+        <Select.Option value="GST">GST</Select.Option>
+        <Select.Option value="Non-GST">Non-GST</Select.Option>
+      </Select>
+    </Form.Item>
+    <Form.Item name="gst_number" label="GST Number">
+      <Input placeholder="Enter GST number" />
+    </Form.Item>
+    <Form.Item
+      name="coordinator_name"
+      label="Coordinator Name"
+      rules={[{ required: true }]}
+    >
+      <Input placeholder="Enter coordinator name" />
+    </Form.Item>
+    <Form.Item
+      name="coordinator_phone"
+      label="Coordinator Phone"
+      rules={[{ required: true }]}
+    >
+      <Input placeholder="Enter coordinator phone" />
+    </Form.Item>
+    <Form.Item name="panel_name" label="Panel Name">
+      <Input placeholder="Enter panel name" />
+    </Form.Item>
+    <Form.Item name="purchased_products" label="Purchased Products">
+      <Input.TextArea placeholder="List purchased products" />
+    </Form.Item>
+  </>
+);
+
+const CreatingCredentials = () => (
   <>
     <Form.Item
       name="email"
@@ -218,12 +187,6 @@ const WorkStatusStep = () => (
     <Form.Item name="password" label="Password" rules={[{ required: true }]}>
       <Input.Password placeholder="Enter password" />
     </Form.Item>
-    <Form.Item name="status" label="Status">
-      <Select>
-        <Select.Option value="active">Active</Select.Option>
-        <Select.Option value="inactive">Inactive</Select.Option>
-      </Select>
-    </Form.Item>
     <Form.Item name="priority_level" label="Priority Level">
       <Select>
         <Select.Option value="Normal">Normal</Select.Option>
@@ -231,19 +194,8 @@ const WorkStatusStep = () => (
         <Select.Option value="Critical">Critical</Select.Option>
       </Select>
     </Form.Item>
-  </>
-);
-
-const AdditionalInfoStep = () => (
-  <>
-    <Form.Item name="recharge_date" label="Recharge Date">
-      <DatePicker className="w-full" />
-    </Form.Item>
-    <Form.Item name="validity_expire_date" label="Validity Expiry Date">
-      <DatePicker className="w-full" />
-    </Form.Item>
-    <Form.Item name="last_recharge_date" label="Last Recharge Date">
-      <DatePicker className="w-full" />
+    <Form.Item name="notes" label="Notes">
+      <Input.TextArea placeholder="Enter notes" />
     </Form.Item>
   </>
 );

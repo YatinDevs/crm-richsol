@@ -44,12 +44,13 @@ exports.signup = async (req, res) => {
     console.log(accessToken);
 
     res.status(201).json({
+      success: true,
       message: "User created and logged in successfully",
       accessToken: accessToken,
       employeeDetails: employee,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -64,6 +65,12 @@ exports.login = async (req, res) => {
     console.log(employee);
     if (!employee) {
       return res.status(404).json({ error: "Employee not found" });
+    }
+
+    if (employee.status === "inactive") {
+      return res
+        .status(403)
+        .json({ error: "Employee is inactive. Contact admin." });
     }
 
     console.log(password);
@@ -96,11 +103,11 @@ exports.login = async (req, res) => {
 
     setAuthCookies(res, accessToken, refreshToken);
 
-    res.status(201).json({
-      message: "Employee logged in successfully",
-    });
+    res
+      .status(201)
+      .json({ success: true, message: "Employee logged in successfully" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -156,7 +163,7 @@ exports.refreshToken = async (req, res) => {
 
 exports.getEmp = async (req, res) => {
   try {
-    console.log(req.body);
+    console.log(req.body, `here`);
     const { accessToken } = req.cookies;
     // console.log(em);
     if (!accessToken)

@@ -12,7 +12,7 @@ const Login = () => {
       const response = await login(credentials);
       storeLogin(response.data.userDetails, response.data.accessToken);
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Login failed:", error.response.data);
     }
   };
 

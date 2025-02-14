@@ -19,13 +19,18 @@ router.post(
 router.get(
   "/get-employee",
   authenticate,
-  checkRole([""]),
+  checkRole(["admin", "hr"]),
   employeeController.getAllEmployee
 );
 
 router.get("/employees/:id", employeeController.getEmployeeById);
-router.put("/employees/:id", employeeController.updateEmployee);
-router.delete("/employees/:id", employeeController.deleteEmployee);
+router.put("/update-employee/:id", employeeController.updateEmployee);
+router.post(
+  "/delete-employee/:id",
+  authenticate,
+  checkRole(["admin", "hr"]),
+  employeeController.deactivateEmployee
+);
 
 // Additional routes
 router.get("/employees/:id/tasks", employeeController.getEmployeeTasks);

@@ -5,7 +5,7 @@ const checkRole = (roles) => {
     try {
       const employeeId = req.employee.id;
       const employee = await Employee.findByPk(employeeId);
-      console.log(employee);
+      // console.log(employee);
       if (!employee) {
         return res.status(404).json({ error: "employee not found" });
       }
