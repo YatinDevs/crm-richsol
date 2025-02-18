@@ -161,6 +161,21 @@ const ClientForm = () => {
             >
               <Input />
             </Form.Item>
+            <Form.Item name="authorized_name" label="Authorized Name">
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="authorized_phone"
+              label="Authorized Phone"
+              rules={[
+                {
+                  pattern: /^[0-9]{10}$/,
+                  message: "Enter a valid 10-digit number",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
             <Form.Item name="coordinator_name" label="Coordinator Name">
               <Input />
             </Form.Item>
@@ -181,19 +196,6 @@ const ClientForm = () => {
 
         {currentStep === 2 && (
           <>
-            <Form.Item
-              name="priority_level"
-              label="Priority Level"
-              rules={[
-                { required: true, message: "Please select a priority level" },
-              ]}
-            >
-              <Select>
-                <Option value="Normal">Normal</Option>
-                <Option value="High">High</Option>
-                <Option value="Critical">Critical</Option>
-              </Select>
-            </Form.Item>
             <Form.Item
               name="email"
               label="Email"
@@ -216,6 +218,44 @@ const ClientForm = () => {
               ]}
             >
               <Input.Password placeholder="Enter password" />
+            </Form.Item>{" "}
+            <Form.Item
+              name="priority_level"
+              label="Priority Level"
+              rules={[
+                { required: true, message: "Please select a priority level" },
+              ]}
+            >
+              <Select>
+                <Option value="Normal">Normal</Option>
+                <Option value="High">High</Option>
+                <Option value="Critical">Critical</Option>
+              </Select>
+            </Form.Item>{" "}
+            <Form.Item name="attachments" label="Attachments">
+              <Input.TextArea />
+            </Form.Item>
+            <Form.Item
+              name="reference"
+              label="Reference"
+              rules={[
+                { required: true, message: "Please select a priority level" },
+              ]}
+            >
+              <Select>
+                <Option value="JustDial">JustDial</Option>
+                <Option value="Indiamart">Indiamart</Option>
+                <Option value="Old Client Reference">
+                  Old Client Reference
+                </Option>
+                <Option value="Facebook Ads">Facebook Ads</Option>
+                <Option value="Old Employee Reference">
+                  Old Employee Reference
+                </Option>
+                <Option value="Reseller">Reseller</Option>
+                <Option value="Exhibitions">Exhibitions</Option>
+                <Option value="Others">Others</Option>
+              </Select>
             </Form.Item>
             <Form.Item name="notes" label="Additional Notes">
               <Input.TextArea />
