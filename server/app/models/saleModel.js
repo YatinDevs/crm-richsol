@@ -12,15 +12,15 @@ const Sale = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    client_id: {
+    for_client_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    employee_id: {
+    by_employee_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    service_id: {
+    for_service_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -43,6 +43,7 @@ const Sale = sequelize.define(
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    sale_by: { type: DataTypes.INTEGER, allowNull: false },
     notes: {
       type: DataTypes.TEXT,
     },

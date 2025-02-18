@@ -1,12 +1,60 @@
 // clientController.js
 const { Client, Sale, Invoice } = require("../models/associations");
 const bcrypt = require("bcryptjs");
+const { Op } = require("sequelize");
 
-// Create a new client
+// Utility function to remove sensitive fields
+const sanitizeClient = (client) => {
+  if (!client) return null;
+  const clientData = client.toJSON();
+  delete clientData.password;
+  return clientData;
+};
 
+exports.searchClient = async (req, res) => {
+  const { search } = req.query;
+
+  // Log the search query for debugging
+  console.log("Search Query:", search);
+
+  // Validate that search query is not empty
+  if (!search) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Search query cannot be empty" });
+  }
+
+  try {
+    // Perform the search query on the Client model
+    const clients = await Client.findAll({
+      where: {
+        [Op.or]: [
+          { email: { [Op.like]: `%${search}%` } },
+          { owner_phone: { [Op.like]: `%${search}%` } },
+          { company_name: { [Op.like]: `%${search}%` } },
+        ],
+      },
+      // Optionally log the generated SQL query for debugging
+      logging: console.log,
+    });
+    console.log(clients);
+    // Return the results
+    res.json({
+      success: true,
+      clients: clients,
+      message: "Retrieved Matching List",
+    });
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Error searching client:", error);
+
+    // Send an error response
+    res.status(500).json({ success: false, message: "Error searching client" });
+  }
+};
 exports.createClient = async (req, res) => {
   try {
-    console.log(req.body);
+    console.log("Received Data:", req.body);
 
     const {
       company_name,
@@ -28,9 +76,22 @@ exports.createClient = async (req, res) => {
       priority_level,
     } = req.body;
 
-    // Check if required fields are present
-    if (!company_name || !email || !password || !owner_phone) {
+    // Validate required fields
+    if (!company_name || !email || !password || !owner_phone || !service_type) {
       return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    // Validate GST Number format (Optional: Update regex if needed)
+    const gstRegex =
+      /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    if (gst_number && !gstRegex.test(gst_number)) {
+      return res.status(400).json({ error: "Invalid GST number format" });
     }
 
     // Check if the email already exists
@@ -50,75 +111,77 @@ exports.createClient = async (req, res) => {
     // Create the client
     const client = await Client.create({
       company_name,
-      address,
+      address: address || null,
       owner_name,
       owner_phone,
-      coordinator_name,
-      coordinator_phone,
-      gst_number,
-      purchased_products,
+      coordinator_name: coordinator_name || null,
+      coordinator_phone: coordinator_phone || null,
+      gst_number: gst_number || null,
+      purchased_products: purchased_products || null,
       email,
       password: hashedPassword, // Store hashed password
-      panel_name,
+      panel_name: panel_name || null,
       service_type,
-      recharge_date,
-      validity_expire_date,
-      last_recharge_date,
+      recharge_date: recharge_date || null,
+      validity_expire_date: validity_expire_date || null,
+      last_recharge_date: last_recharge_date || null,
       onboarded_by: onboardedBy,
-      notes,
-      priority_level,
+      notes: notes || null,
+      priority_level: priority_level || "Normal",
     });
-
+    const clientDetails = sanitizeClient(client);
     // Respond with success (excluding sensitive data)
     res.status(201).json({
       success: true,
       message: "Client onboarded successfully",
-      client: {
-        id: client.id,
-        company_name: client.company_name,
-        email: client.email,
-        service_type: client.service_type,
-        status: "active",
-      },
+      client: clientDetails,
     });
   } catch (error) {
-    console.error("Error creating client:", error);
+    console.error("Error creating client:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// Get all clients (with optional status filter)
+// **Get All Clients**
 exports.getAllClients = async (req, res) => {
   try {
-    const { status } = req.query; // Optional query parameter to filter by status
+    const clients = await Client.findAll({
+      attributes: { exclude: ["password"] },
+    });
+    const clientDetails = sanitizeClient(clients);
 
-    const whereClause = status ? { status } : {}; // Filter by status if provided
-
-    const clients = await Client.findAll({ where: whereClause });
-    res.status(200).json(clients);
+    res.json({
+      success: true,
+      message: "Client listed successfully",
+      clients: clientDetails,
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching clients:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-// Get client by ID
+// **Get Single Client by ID**
 exports.getClientById = async (req, res) => {
   try {
-    console.log(req.body, req.params);
-    const { id } = req.params;
+    const client = await Client.findOne({
+      where: { client_id: req.params.id },
+      attributes: { exclude: ["password"] },
+    });
 
-    const client = await Client.findByPk(id);
     if (!client) {
-      return res.status(404).json({ error: "Client not found" });
+      return res.status(404).json({ message: "Client not found" });
     }
+    const clientDetails = sanitizeClient(client);
 
-    res.status(200).json({
+    res.json({
       success: true,
       message: "Client Retrieved successfully",
-      client: client,
+      client: clientDetails,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching client:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -169,8 +232,13 @@ exports.updateClient = async (req, res) => {
       notes,
       priority_level,
     });
+    const clientDetails = sanitizeClient(client);
 
-    res.status(200).json(client);
+    res.status(200).json({
+      success: true,
+      message: "Client Updated successfully",
+      client: clientDetails,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

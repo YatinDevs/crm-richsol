@@ -61,10 +61,11 @@ exports.createEmployee = async (req, res) => {
       reference_contacts,
       attachments,
     });
-
+    // Exclude password from the response
+    const { password: _, ...employeeDetails } = employee.toJSON();
     res.status(201).json({
       message: "Employee Onboarded successfully!",
-      employeeDetails: employee,
+      employeeDetails: employeeDetails,
       success: true,
     });
   } catch (error) {
@@ -75,25 +76,30 @@ exports.createEmployee = async (req, res) => {
     });
   }
 };
-
+// Get all employees (excluding password)
 exports.getAllEmployee = async (req, res) => {
   try {
-    const employee = await Employee.findAll();
-    res.status(201).json({
-      message: "Employee Listing Retrieved successfully!",
-      employeeDetails: employee,
+    const employees = await Employee.findAll();
+    const sanitizedEmployees = employees.map((emp) => {
+      const { password: _, ...employeeDetails } = emp.toJSON();
+      return employeeDetails;
+    });
+
+    res.status(200).json({
+      message: "Employee listing retrieved successfully!",
+      employeeDetails: sanitizedEmployees,
       success: true,
     });
   } catch (error) {
     res.status(500).json({
       error: error.message,
-      message: "Employee Listing Retrieved Failed!",
+      message: "Failed to retrieve employee listing!",
       success: false,
     });
   }
 };
 
-// Delete employee
+// Deactivate employee
 exports.deactivateEmployee = async (req, res) => {
   try {
     const employee = await Employee.findByPk(req.params.id);
@@ -102,12 +108,12 @@ exports.deactivateEmployee = async (req, res) => {
       return res.status(404).json({ error: "Employee not found" });
     }
 
-    // Update employee status to inactive
     await employee.update({ status: "inactive" });
+    const { password: _, ...employeeDetails } = employee.toJSON();
 
     res.status(200).json({
       message: "Employee deactivated successfully!",
-      employeeDetails: employee,
+      employeeDetails,
       success: true,
     });
   } catch (error) {
@@ -118,26 +124,38 @@ exports.deactivateEmployee = async (req, res) => {
 // Update employee
 exports.updateEmployee = async (req, res) => {
   try {
-    console.log(req.body);
     const employee = await Employee.findByPk(req.params.id);
     if (!employee) {
       return res.status(404).json({ error: "Employee not found" });
     }
-    let res = await employee.update(req.body);
-    console.log(res);
-    res.status(200).json(employee);
+
+    await employee.update(req.body);
+    const { password: _, ...employeeDetails } = employee.toJSON();
+
+    res.status(200).json({
+      message: "Employee updated successfully!",
+      employeeDetails,
+      success: true,
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
-// Get employee by ID
+
+// Get employee by ID (excluding password)
 exports.getEmployeeById = async (req, res) => {
   try {
     const employee = await Employee.findByPk(req.params.id);
     if (!employee) {
       return res.status(404).json({ error: "Employee not found" });
     }
-    res.status(200).json(employee);
+
+    const { password: _, ...employeeDetails } = employee.toJSON();
+    res.status(200).json({
+      message: "Employee retrieved successfully!",
+      employeeDetails,
+      success: true,
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -147,7 +165,11 @@ exports.getEmployeeById = async (req, res) => {
 exports.getEmployeeTasks = async (req, res) => {
   try {
     const tasks = await Task.findAll({ where: { assigned_to: req.params.id } });
-    res.status(200).json(tasks);
+    res.status(200).json({
+      message: "Employee tasks retrieved successfully!",
+      tasks,
+      success: true,
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -159,7 +181,11 @@ exports.getEmployeeAttendance = async (req, res) => {
     const attendance = await Attendance.findAll({
       where: { employee_id: req.params.id },
     });
-    res.status(200).json(attendance);
+    res.status(200).json({
+      message: "Employee attendance retrieved successfully!",
+      attendance,
+      success: true,
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -171,7 +197,11 @@ exports.getEmployeeLeaveRequests = async (req, res) => {
     const leaveRequests = await LeaveRequest.findAll({
       where: { employee_id: req.params.id },
     });
-    res.status(200).json(leaveRequests);
+    res.status(200).json({
+      message: "Employee leave requests retrieved successfully!",
+      leaveRequests,
+      success: true,
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

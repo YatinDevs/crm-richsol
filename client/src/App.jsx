@@ -22,6 +22,8 @@ import ClientForm from "./pages/ManageClient/ClientForm";
 import useAuthStore from "./store/authStore";
 import InvoiceGenerator from "./pages/ManageAccounts/InvoiceGenerator";
 import EmployeeEditForm from "./pages/ManageEmp/EmployeeEditForm";
+import ManageServices from "./pages/ManageServices/ManageServices";
+import AddServiceForm from "./pages/ManageServices/AddService";
 
 function App() {
   const { checkAuth, employee, isAuthenticated } = useAuthStore();
@@ -74,14 +76,18 @@ function App() {
           <Route
             path="/dashboard/employees/leave"
             element={<ManageLeaveRequest />}
-          />
+          />{" "}
+          {/* Admin Routes */}
           <Route path="/dashboard/clients" element={<ManageClients />} />
           <Route path="/dashboard/clients/add" element={<ClientForm />} />
           <Route path="/dashboard/tasks" element={<ManageTasks />} />
           <Route
             path="/dashboard/accounts/invoice"
             element={<InvoiceGenerator />}
-          />
+          />{" "}
+          {/* Admin Routes */}
+          <Route path="/dashboard/services" element={<ManageServices />} />
+          <Route path="/dashboard/services/add" element={<AddServiceForm />} />
         </Route>
       </>
     )

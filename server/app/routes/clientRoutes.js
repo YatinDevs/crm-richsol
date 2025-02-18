@@ -8,8 +8,15 @@ const { authenticate } = require("../middlewares/authMiddleware");
 // CRUD operations
 
 // Create a new client (Sales and Admin only)
+router.get(
+  "/search",
+  authenticate,
+  checkRole(["admin", "sales"]),
+  clientController.searchClient
+);
+// Create a new client (Sales and Admin only)
 router.post(
-  "/create-client",
+  "/create",
   authenticate,
   checkRole(["admin", "sales"]),
   clientController.createClient

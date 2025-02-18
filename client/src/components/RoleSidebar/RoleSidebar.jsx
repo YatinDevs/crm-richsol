@@ -37,7 +37,15 @@ const sidebars = {
       icon: Briefcase,
       subMenu: [
         { label: "Client Onboard", link: "/dashboard/clients/add" },
-        { label: "Client List", link: "clients/list" },
+        { label: "Client List", link: "/dashboard/clients/list" },
+      ],
+    },
+    {
+      label: "Manage Service",
+      icon: Briefcase,
+      subMenu: [
+        { label: "Add Service", link: "/dashboard/services/add" },
+        { label: "Service List", link: "/dashboard/services/list" },
       ],
     },
     {

@@ -32,7 +32,6 @@ const Client = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-
     // BusinessDetails
     service_type: {
       type: DataTypes.ENUM("GST", "Non-GST"),
@@ -42,24 +41,21 @@ const Client = sequelize.define(
       // client Onboarding details step 1
       type: DataTypes.STRING,
     },
+    authorized_name: { type: DataTypes.STRING, allowNull: true },
+    authorized_phone: { type: DataTypes.STRING, allowNull: true },
     coordinator_name: {
       // client Onboarding details step 1
       type: DataTypes.STRING,
+      allowNull: true,
     },
     coordinator_phone: {
       // client Onboarding details step 1
       type: DataTypes.STRING,
-    },
-    panel_name: {
-      type: DataTypes.STRING,
-    },
-    purchased_products: {
-      // client Onboarding details step 1
-      type: DataTypes.JSONB,
-      defaultValue: [],
+      allowNull: true,
     },
 
     // Client Credentials
+
     email: {
       // sales step 1
       type: DataTypes.STRING,
@@ -73,9 +69,6 @@ const Client = sequelize.define(
       type: DataTypes.ENUM("Normal", "High", "Critical"),
       defaultValue: "Normal",
     },
-    notes: {
-      type: DataTypes.TEXT,
-    },
 
     onboarded_by: {
       // client Onboarding details step 1
@@ -85,6 +78,23 @@ const Client = sequelize.define(
     status: {
       type: DataTypes.ENUM("active", "inactive"),
       defaultValue: "active",
+    },
+    attachments: { type: DataTypes.TEXT, allowNull: true },
+    reference: {
+      type: DataTypes.ENUM(
+        "JustDial",
+        "Indiamart",
+        "Old Client Reference",
+        "Facebook Ads",
+        "Old Employee Reference",
+        "Reseller",
+        "Exhibitions",
+        "Others"
+      ),
+    },
+    notes: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,
