@@ -1,95 +1,73 @@
-const PDFDocument = require("pdfkit");
-const fs = require("fs");
-const path = require("path");
 const Invoice = require("../models/invoiceModel");
-
-// Function to generate a PDF invoice
-const generatePDF = async (invoice, res) => {
-  const doc = new PDFDocument();
-  const filePath = path.join(
-    __dirname,
-    `../public/${invoice.type}_invoice_${invoice.invoiceNo}.pdf`
-  );
-  doc.pipe(fs.createWriteStream(filePath));
-
-  // Title
-  doc
-    .fontSize(20)
-    .text(`${invoice.type.toUpperCase()} INVOICE`, { align: "center" })
-    .moveDown();
-
-  // Company Details
-  doc.fontSize(14).text(invoice.company.name, { align: "center" });
-  doc.text(`GSTIN: ${invoice.company.gstin}`, { align: "center" });
-  doc.text(`State: ${invoice.company.state}, Code: ${invoice.company.code}`, {
-    align: "center",
-  });
-  doc.text(`Email: ${invoice.company.email}`).moveDown();
-
-  // Invoice Details
-  doc.text(`Invoice No: ${invoice.invoiceNo}`);
-  doc.text(`Date: ${invoice.date}`).moveDown();
-
-  // Buyer Details
-  doc.text(`Buyer: ${invoice.buyer.name}`);
-  doc.text(`Address: ${invoice.buyer.address}`);
-  doc.text(`GSTIN: ${invoice.buyer.gstin}`).moveDown();
-
-  // Table Headers
-  doc
-    .fontSize(12)
-    .text("Sl No.   Description   HSN/SAC   Quantity   Rate   Amount", {
-      underline: true,
-    });
-
-  // Items
-  invoice.items.forEach((item, index) => {
-    doc.text(
-      `${index + 1}    ${item.description}    ${item.hsn}    ${
-        item.quantity
-      }    ₹${item.rate}    ₹${item.amount}`
-    );
-  });
-
-  // Tax & Total
-  doc.moveDown().text(`Total Tax: ₹${invoice.totalTax}`);
-  doc.text(`Total Amount: ₹${invoice.totalAmount}`);
-  doc.text(`Amount in Words: ${invoice.amountInWords}`).moveDown();
-
-  // Bank Details (only for Tax Invoice)
-  if (invoice.type === "tax") {
-    doc.text(`Bank: ${invoice.bank.name}`);
-    doc.text(`Account No.: ${invoice.bank.account}`);
-    doc.text(`IFSC: ${invoice.bank.ifsc}`).moveDown();
-  }
-
-  doc.text("For " + invoice.company.name, { align: "right" });
-
-  doc.end();
-
-  doc.on("end", () => {
-    res.download(filePath, `${invoice.type}_invoice.pdf`, (err) => {
-      if (err) console.error("Error sending file:", err);
-    });
-  });
-};
-
-// Controller for creating an invoice
+const generateInvoicePDF = require("../utils/generateInvoice");
 exports.createInvoice = async (req, res) => {
   try {
-    const invoice = await Invoice.create(req.body);
-    generatePDF(invoice, res);
+    console.log(req.body);
+    let invoiceData = { ...req.body };
+
+    // Fix "stateCode " issue
+    if (invoiceData.buyer?.["stateCode "]) {
+      invoiceData.buyer.stateCode = invoiceData.buyer["stateCode "];
+      delete invoiceData.buyer["stateCode "];
+    }
+
+    // Fix floating point precision
+    invoiceData.totalAmount = parseFloat(invoiceData.totalAmount.toFixed(2));
+    invoiceData.grandTotal = parseFloat(invoiceData.grandTotal.toFixed(2));
+
+    // Ensure for_client_id exists
+    invoiceData.for_client_id = invoiceData.for_client_id || null;
+
+    const invoice = await Invoice.create(invoiceData);
+    console.log(invoice, `Generated`);
+
+    res.status(201).json({ message: "Invoice created successfully", invoice });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error creating invoice:", error);
+    res
+      .status(500)
+      .json({ message: "Error creating invoice", error: error.message });
   }
 };
 
-// Controller to fetch all invoices
-exports.getInvoices = async (req, res) => {
+exports.getInvoice = async (req, res) => {
   try {
-    const invoices = await Invoice.findAll();
-    res.json(invoices);
+    const { invoiceId } = req.params;
+    const invoice = await Invoice.findByPk(invoiceId);
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+    res.json(invoice);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Error fetching invoice", error });
+  }
+};
+
+exports.generateInvoicePDF = async (req, res) => {
+  try {
+    const { invoiceId } = req.params;
+    console.log(`Fetching invoice with ID: ${invoiceId}`);
+
+    const invoice = await Invoice.findByPk(invoiceId);
+
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+
+    console.log("Invoice data:", invoice);
+
+    // Generate the PDF
+    const pdfBuffer = await generateInvoicePDF(invoice);
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=Proforma_Invoice_${invoiceId}.pdf`
+    );
+    res.setHeader("Content-Type", "application/pdf");
+
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    res.status(500).json({ message: "Error generating PDF", error });
   }
 };

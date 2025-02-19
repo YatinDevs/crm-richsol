@@ -24,6 +24,8 @@ import InvoiceGenerator from "./pages/ManageAccounts/InvoiceGenerator";
 import EmployeeEditForm from "./pages/ManageEmp/EmployeeEditForm";
 import ManageServices from "./pages/ManageServices/ManageServices";
 import AddServiceForm from "./pages/ManageServices/AddService";
+import MultiStepInvoiceForm from "./pages/ManageAccounts/MultiStepInvoiceForm";
+import InvoiceDownload from "./pages/ManageAccounts/InvoiceDownload";
 
 function App() {
   const { checkAuth, employee, isAuthenticated } = useAuthStore();
@@ -83,8 +85,9 @@ function App() {
           <Route path="/dashboard/tasks" element={<ManageTasks />} />
           <Route
             path="/dashboard/accounts/invoice"
-            element={<InvoiceGenerator />}
+            element={<MultiStepInvoiceForm />}
           />{" "}
+          <Route path="/dashboard/accounts/get" element={<InvoiceDownload />} />{" "}
           {/* Admin Routes */}
           <Route path="/dashboard/services" element={<ManageServices />} />
           <Route path="/dashboard/services/add" element={<AddServiceForm />} />

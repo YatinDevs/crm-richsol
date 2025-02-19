@@ -62,7 +62,7 @@ const sidebars = {
       subMenu: [
         { label: "Generate Porforma", link: "/dashboard/accounts/invoice" },
         { label: "Create Invoice", link: "invoices/create" },
-        { label: "View Invoices", link: "invoices/list" },
+        { label: "Invoices", link: "/dashboard/accounts/get" },
       ],
     },
     {

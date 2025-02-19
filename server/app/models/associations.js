@@ -28,8 +28,7 @@ Sale.belongsTo(Service, { foreignKey: "service_id", as: "service" });
 Sale.hasOne(Invoice, { foreignKey: "sale_id", as: "invoice" });
 
 // Invoice Associations
-Invoice.belongsTo(Client, { foreignKey: "client_id", as: "client" });
-Invoice.belongsTo(Sale, { foreignKey: "sale_id", as: "sale" });
+Invoice.belongsTo(Client, { foreignKey: " for_client_id", as: "client" });
 
 // Task Associations
 Task.belongsTo(Employee, { foreignKey: "assigned_to", as: "assignedTo" });

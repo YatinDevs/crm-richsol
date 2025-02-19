@@ -1,11 +1,13 @@
-// invoiceRoutes.js
 const express = require("express");
 const router = express.Router();
-const invoiceController = require("../controllers/invoiceController");
+const {
+  generateInvoicePDF,
+  createInvoice,
+  getInvoice,
+} = require("../controllers/invoiceController");
 
-// CRUD operations
-
-router.post("/generate-invoice", invoiceController.createInvoice);
-router.get("/invoices", invoiceController.getInvoices);
+router.get("/generate/:invoiceId", generateInvoicePDF);
+router.post("/create", createInvoice);
+router.get("/fetch", getInvoice);
 
 module.exports = router;

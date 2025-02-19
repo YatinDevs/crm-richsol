@@ -78,7 +78,7 @@ const AddEmployee = () => {
         <Step
           title="Work Details"
           icon={<AiOutlineSolution />}
-          onClick={() => setCurrentStep(1)}
+          onClick={() => setCurrentStep(1)} // kwc // saba
         />
         <Step
           title="Creating Credentials"

@@ -30,6 +30,9 @@ const Service = sequelize.define(
       type: DataTypes.ENUM("GST", "Non-GST"),
       allowNull: false, // sales step 2
     },
+    // C GST  - 18%  -  3.5%  -  15%
+    // S GST  -
+    // I GST  -
     sub_service_name: {
       type: DataTypes.ENUM(
         "SMS Just Panel",
