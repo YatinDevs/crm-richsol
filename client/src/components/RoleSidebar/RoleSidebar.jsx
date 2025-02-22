@@ -114,7 +114,7 @@ function RoleSidebar() {
   };
 
   return (
-    <div className=" rounded-r-3xl hidden md:flex flex-col w-64 h-screen bg-gray-900 text-white">
+    <div className=" rounded-r-3xl hidden md:flex flex-col w-64 h-full bg-gray-900 text-white">
       {/* Sidebar Content */}
       <div className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-2">

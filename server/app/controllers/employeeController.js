@@ -40,7 +40,10 @@ exports.createEmployee = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    // Retrieve uploaded file paths
+    const fileUrls = req.files
+      ? req.files.map((file) => `/uploads/${file.filename}`)
+      : [];
     const employee = await Employee.create({
       username,
       email,
@@ -58,11 +61,12 @@ exports.createEmployee = async (req, res) => {
       anniversary_date,
       address,
       blood_group,
-      reference_contacts,
-      attachments,
+      reference_contacts: JSON.parse(reference_contacts || "[]"), // Ensure it's stored as JSON
+      attachments: fileUrls, // Store file URLs
     });
     // Exclude password from the response
     const { password: _, ...employeeDetails } = employee.toJSON();
+
     res.status(201).json({
       message: "Employee Onboarded successfully!",
       employeeDetails: employeeDetails,

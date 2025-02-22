@@ -2,6 +2,7 @@ const express = require("express");
 const employeeController = require("../controllers/employeeController");
 const { authenticate } = require("../middlewares/authMiddleware");
 const { checkRole } = require("../middlewares/roleMiddleware");
+const upload = require("../middlewares/uploadMiddleware");
 const router = express.Router();
 
 // admin can be registered through postman -------> checked
@@ -13,6 +14,7 @@ router.post(
   "/create-employee",
   authenticate,
   checkRole(["admin", "hr"]),
+  upload.array("attachments", 5),
   employeeController.createEmployee
 );
 

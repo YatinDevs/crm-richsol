@@ -98,6 +98,15 @@ const Employee = sequelize.define(
       // Personal Details -
       type: DataTypes.TEXT,
     },
+    state: {
+      type: DataTypes.STRING(50),
+    },
+    country: {
+      type: DataTypes.STRING(50),
+    },
+    pincode: {
+      type: DataTypes.STRING(10),
+    },
     blood_group: {
       // Personal Details -
       type: DataTypes.STRING(5),

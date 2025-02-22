@@ -9,7 +9,9 @@ import {
   message,
   Space,
   Steps,
+  Upload,
 } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import axiosInstance from "../../services/api";
 import {
   AiOutlineUser,
@@ -24,6 +26,7 @@ const AddEmployee = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [form] = Form.useForm();
   const [formData, setFormData] = useState({});
+  const [fileList, setFileList] = useState([]);
 
   const handleNext = async () => {
     try {
@@ -37,6 +40,10 @@ const AddEmployee = () => {
 
   const handlePrev = () => setCurrentStep(currentStep - 1);
 
+  const handleFileChange = ({ fileList }) => {
+    setFileList(fileList);
+  };
+
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
@@ -48,15 +55,26 @@ const AddEmployee = () => {
         }
       });
 
+      const formDataToSend = new FormData();
+      Object.keys(finalData).forEach((key) => {
+        formDataToSend.append(key, finalData[key]);
+      });
+
+      fileList.forEach((file) => {
+        formDataToSend.append("attachments", file.originFileObj);
+      });
+
       const response = await axiosInstance.post(
         "/emp/create-employee",
-        finalData
+        formDataToSend,
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
       if (response.data.success) {
         message.success("Employee onboarded successfully");
         form.resetFields();
         setFormData({});
+        setFileList([]);
         setCurrentStep(0);
       } else {
         message.error(response.data.message || "Failed to add employee");
@@ -78,7 +96,7 @@ const AddEmployee = () => {
         <Step
           title="Work Details"
           icon={<AiOutlineSolution />}
-          onClick={() => setCurrentStep(1)} // kwc // saba
+          onClick={() => setCurrentStep(1)}
         />
         <Step
           title="Creating Credentials"
@@ -127,12 +145,33 @@ const AddEmployee = () => {
             </Form.Item>
             <Form.Item name="blood_group" label="Blood Group">
               <Input />
-            </Form.Item>{" "}
+            </Form.Item>
             <Form.Item name="dob" label="Date of Birth">
               <DatePicker className="w-full" />
             </Form.Item>
             <Form.Item name="address" label="Address">
               <Input.TextArea />
+            </Form.Item>
+            <Form.Item
+              name="country"
+              label="Country"
+              rules={[{ required: true, message: "Country is required" }]}
+            >
+              <Input placeholder="Enter country" />
+            </Form.Item>
+            <Form.Item
+              name="state"
+              label="State"
+              rules={[{ required: true, message: "State is required" }]}
+            >
+              <Input placeholder="Enter state" />
+            </Form.Item>
+            <Form.Item
+              name="pincode"
+              label="Pincode"
+              rules={[{ required: true, message: "Pincode is required" }]}
+            >
+              <Input placeholder="Enter pincode" />
             </Form.Item>
             <Form.Item name="reference_contacts" label="Reference Contacts">
               <Input.TextArea />
@@ -205,10 +244,16 @@ const AddEmployee = () => {
               rules={[{ required: true, message: "Password is required" }]}
             >
               <Input.Password placeholder="Enter password" />
-            </Form.Item>{" "}
+            </Form.Item>
             <Form.Item name="attachments" label="Attachments">
-              {" "}
-              <Input.TextArea />{" "}
+              <Upload
+                multiple
+                fileList={fileList}
+                beforeUpload={() => false}
+                onChange={handleFileChange}
+              >
+                <Button icon={<UploadOutlined />}>Upload Files</Button>
+              </Upload>
             </Form.Item>
           </>
         )}
