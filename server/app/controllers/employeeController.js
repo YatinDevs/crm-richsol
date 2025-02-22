@@ -33,7 +33,11 @@ exports.createEmployee = async (req, res) => {
       attachments,
     } = req.body;
     console.log(username, email, password, role);
-
+    console.log(req.files);
+    const fileUrls = req.files
+      ? req.files.map((file) => `/uploads/${file.filename}`)
+      : [];
+    console.log(fileUrls);
     const exisitingEmployee = await Employee.findOne({ where: { email } });
     if (exisitingEmployee) {
       return res.status(400).json({ error: "Email already exists" });
@@ -41,9 +45,7 @@ exports.createEmployee = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     // Retrieve uploaded file paths
-    const fileUrls = req.files
-      ? req.files.map((file) => `/uploads/${file.filename}`)
-      : [];
+
     const employee = await Employee.create({
       username,
       email,
