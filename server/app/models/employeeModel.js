@@ -121,12 +121,12 @@ const Employee = sequelize.define(
       type: DataTypes.JSONB,
     },
     attachments: {
-      // Personal Details
-      type: DataTypes.JSONB,
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      defaultValue: [],
     },
   },
   {
-    tableName: "employees",
+    tableName: "Employees",
     timestamps: true,
   }
 );

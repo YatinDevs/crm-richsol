@@ -26,7 +26,8 @@ const sidebars = {
       label: "Manage Employees",
       icon: Users,
       subMenu: [
-        { label: "Add New Employee", link: "/dashboard/employees/add" },
+        { label: "Onboard Employee", link: "/dashboard/employees/onboard" },
+        { label: "Employee KYC", link: "/dashboard/employees/add" },
         { label: "Employee List", link: "/dashboard/employees/list" },
         { label: "Manage Attendance", link: "/dashboard/employees/attend" },
         { label: "Leave Requests", link: "/dashboard/employees/leave" },

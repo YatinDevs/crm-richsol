@@ -24,6 +24,8 @@ const adminRoutes = require("./routes/adminRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const clientRoutes = require("./routes/clientRoutes");
 const invoiceRoutes = require("./routes/invoiceRoutes");
+// const taskRoutes = require("./routes/taskRoutes");
+
 const app = express();
 
 // CORS policy

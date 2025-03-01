@@ -6,11 +6,18 @@ const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../utils/tokenUtils");
+const { query } = require("express");
 
 // only admin or hr can create employees
 exports.createEmployee = async (req, res) => {
   try {
-    console.log(req.body);
+    console.log("Request Body:", req.body);
+    console.log("Uploaded Files:", req.files);
+    // Debugging: Check if files are received
+    const fileUrls = req.files
+      ? req.files.map((file) => `/uploads/${file.filename}`)
+      : [];
+    console.log("Stored File Paths:", fileUrls);
 
     const {
       username,
@@ -32,12 +39,7 @@ exports.createEmployee = async (req, res) => {
       reference_contacts,
       attachments,
     } = req.body;
-    console.log(username, email, password, role);
-    console.log(req.files);
-    const fileUrls = req.files
-      ? req.files.map((file) => `/uploads/${file.filename}`)
-      : [];
-    console.log(fileUrls);
+
     const exisitingEmployee = await Employee.findOne({ where: { email } });
     if (exisitingEmployee) {
       return res.status(400).json({ error: "Email already exists" });
@@ -63,8 +65,10 @@ exports.createEmployee = async (req, res) => {
       anniversary_date,
       address,
       blood_group,
-      reference_contacts: JSON.parse(reference_contacts || "[]"), // Ensure it's stored as JSON
-      attachments: fileUrls, // Store file URLs
+      reference_contacts: reference_contacts
+        ? JSON.parse(reference_contacts)
+        : [],
+      attachments: fileUrls.length ? fileUrls : [],
     });
     // Exclude password from the response
     const { password: _, ...employeeDetails } = employee.toJSON();
@@ -82,6 +86,41 @@ exports.createEmployee = async (req, res) => {
     });
   }
 };
+
+exports.searchEmployee = async (req, res) => {
+  console.log(req.query);
+  const { search } = req.query;
+  console.log(search);
+
+  console.log("Search Query:", search);
+
+  if (!search) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Search query cannot be empty" });
+  }
+
+  try {
+    const employees = await Employee.findAll({
+      where: {
+        username: { [Op.like]: `%${search}%` },
+      },
+      logging: console.log,
+    });
+
+    res.json({
+      success: true,
+      employees: employees,
+      message: "Retrieved Matching Employee List",
+    });
+  } catch (error) {
+    console.error("Error searching employee:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error searching employee" });
+  }
+};
+
 // Get all employees (excluding password)
 exports.getAllEmployee = async (req, res) => {
   try {

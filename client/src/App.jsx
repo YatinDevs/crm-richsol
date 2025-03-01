@@ -26,6 +26,8 @@ import ManageServices from "./pages/ManageServices/ManageServices";
 import AddServiceForm from "./pages/ManageServices/AddService";
 import MultiStepInvoiceForm from "./pages/ManageAccounts/MultiStepInvoiceForm";
 import InvoiceDownload from "./pages/ManageAccounts/InvoiceDownload";
+import EmployeeOnboard from "./pages/ManageEmp/EmployeeOnboard";
+import EmployeeDetails from "./pages/ManageEmp/EmployeeDetails";
 
 function App() {
   const { checkAuth, employee, isAuthenticated } = useAuthStore();
@@ -65,8 +67,16 @@ function App() {
           />
           {/* Admin Routes */}
           <Route path="/dashboard/employees" element={<ManageEmployee />} />
+          <Route
+            path="/dashboard/employees/onboard"
+            element={<EmployeeOnboard />}
+          />
           <Route path="/dashboard/employees/add" element={<AddEmployee />} />
           <Route path="/dashboard/employees/list" element={<EmployeeList />} />
+          <Route
+            path="/dashboard/employees/details"
+            element={<EmployeeDetails />}
+          />
           <Route
             path="/dashboard/employees/edit/:id"
             element={<EmployeeEditForm />}

@@ -14,8 +14,18 @@ router.post(
   "/create-employee",
   authenticate,
   checkRole(["admin", "hr"]),
+  // upload.array("attachments"),
+  // async (req, res) => {
+  //   console.log(req.files); // Check if files are being uploaded properly
+  // },
   upload.array("attachments", 5),
   employeeController.createEmployee
+);
+router.get(
+  "/search-employee",
+  authenticate,
+  checkRole(["admin", "hr"]),
+  employeeController.searchEmployee
 );
 
 router.get(
