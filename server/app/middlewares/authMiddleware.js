@@ -13,7 +13,7 @@ exports.authenticate = (req, res, next) => {
     }
 
     req.employee = employee; // Attach decoded user to request
-    console.log(req.employee);
+    console.log("Verified employee:", req.employee.id);
     next(); // Proceed to next middleware/controller
   });
 };

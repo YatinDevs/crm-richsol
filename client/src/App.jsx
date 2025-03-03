@@ -28,6 +28,8 @@ import MultiStepInvoiceForm from "./pages/ManageAccounts/MultiStepInvoiceForm";
 import InvoiceDownload from "./pages/ManageAccounts/InvoiceDownload";
 import EmployeeOnboard from "./pages/ManageEmp/EmployeeOnboard";
 import EmployeeDetails from "./pages/ManageEmp/EmployeeDetails";
+import EditClientForm from "./pages/ManageClient/EditClientForm";
+import ClientList from "./pages/ManageClient/ClientList";
 
 function App() {
   const { checkAuth, employee, isAuthenticated } = useAuthStore();
@@ -88,17 +90,20 @@ function App() {
           <Route
             path="/dashboard/employees/leave"
             element={<ManageLeaveRequest />}
-          />{" "}
-          {/* Admin Routes */}
+          />
           <Route path="/dashboard/clients" element={<ManageClients />} />
           <Route path="/dashboard/clients/add" element={<ClientForm />} />
+          <Route
+            path="/dashboard/clients/edit/:id"
+            element={<EditClientForm />}
+          />
+          <Route path="/dashboard/clients/list" element={<ClientList />} />
           <Route path="/dashboard/tasks" element={<ManageTasks />} />
           <Route
             path="/dashboard/accounts/invoice"
             element={<MultiStepInvoiceForm />}
-          />{" "}
+          />
           <Route path="/dashboard/accounts/get" element={<InvoiceDownload />} />{" "}
-          {/* Admin Routes */}
           <Route path="/dashboard/services" element={<ManageServices />} />
           <Route path="/dashboard/services/add" element={<AddServiceForm />} />
         </Route>

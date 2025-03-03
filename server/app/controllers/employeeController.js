@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 const Token = require("../models/tokenModel");
 const Employee = require("../models/employeeModel");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
+const { Op } = require("sequelize");
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -103,7 +104,10 @@ exports.searchEmployee = async (req, res) => {
   try {
     const employees = await Employee.findAll({
       where: {
-        username: { [Op.like]: `%${search}%` },
+        [Op.or]: [
+          { username: { [Op.like]: `%${search}%` } },
+          { email: { [Op.like]: `%${search}%` } },
+        ],
       },
       logging: console.log,
     });

@@ -40,9 +40,9 @@ router.put(
 
 // Get all clients (Admin only, with optional status filter)
 router.get(
-  "/clients",
+  "/get-clients",
   authenticate,
-  checkRole(["admin"]),
+  checkRole(["admin", "hr"]),
   clientController.getAllClients
 );
 // Deactivate a client (Admin only)

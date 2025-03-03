@@ -6,7 +6,9 @@ const { Op } = require("sequelize");
 // Utility function to remove sensitive fields
 const sanitizeClient = (client) => {
   if (!client) return null;
+  console.log(client);
   const clientData = client.toJSON();
+  console.log(clientData);
   delete clientData.password;
   return clientData;
 };
@@ -148,12 +150,12 @@ exports.getAllClients = async (req, res) => {
     const clients = await Client.findAll({
       attributes: { exclude: ["password"] },
     });
-    const clientDetails = sanitizeClient(clients);
+    // const clientDetails = sanitizeClient(clients);
 
     res.json({
       success: true,
       message: "Client listed successfully",
-      clients: clientDetails,
+      clients: clients,
     });
   } catch (error) {
     console.error("Error fetching clients:", error);

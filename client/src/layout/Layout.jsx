@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, useLocation, useSearchParams } from "react-router-dom";
 import Header from "../components/Header/Header";
 import RoleSidebar from "../components/RoleSidebar/RoleSidebar";
+import ContentWrapper from "../components/ContentWrapper/ContentWrapper";
 
 function Layout() {
   const location = useLocation();
@@ -16,15 +17,17 @@ function Layout() {
   return (
     <>
       {!isHomePageLogin && <Header />}
-      <div className="flex h-[100vh]  ">
-        <div>
-          {/* Sidebar */}
-          {!isHomePageLogin && <RoleSidebar />}
-        </div>
+      <div className={`w-full max-w-[2400px]  mx-auto my-0  py-0 `}>
+        <div className="flex h-[100vh]  ">
+          <div>
+            {/* Sidebar */}
+            {!isHomePageLogin && <RoleSidebar />}
+          </div>
 
-        {/* Main Content */}
-        <div className="flex-1  bg-gray-100 ">
-          <Outlet />
+          {/* Main Content */}
+          <div className="flex-1  bg-gray-100 ">
+            <Outlet />
+          </div>
         </div>
       </div>
     </>
